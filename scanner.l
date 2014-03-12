@@ -2,15 +2,21 @@
 #include "parser.h" 
 %}
 
+
 NAME [a-z][_a-zA-Z0-9]*
 TITLE ===.+===
 DIGIT  [0-9]+
 WHITESPACE [ \n\r\t]+
-ANY_CHAR .
 COMMENT //.*\n
+WORD [a-zA-Z\x00-\x7F]
+ANY_CHAR .
 
 %%
 
+
+{WORD} {	yylval.str = (char*) strdup(yytext);	
+			return T_NAME;
+		}
 {DIGIT}		{return T_DIGIT;}
 {NAME}	{
 			yylval.str = (char*) strdup(yytext);	
@@ -20,10 +26,6 @@ COMMENT //.*\n
 			yylval.str = (char*) strdup(yytext);	
 			return T_TEXT_TITLE;
 }
-{QUOTEDSTRING}	{
-			yylval.str = (char*) strdup(yytext);	
-			return T_QUOTEDSTRING;
-		}
 
 {COMMENT}
 {WHITESPACE} /* ignore */ ;
