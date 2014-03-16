@@ -26,17 +26,49 @@ void yywrap(void);
 %token T_AUTHOR
 %token T_STRUCTURE
 %token T_ITEM
+%token T_COL
+%token T_SHOW
+
+
 
 %%
 
 comment: '/' '/' T_STRING
 
 newspaper:
-	T_NEWSPAPER '{' newscontent '}'
+	T_NEWSPAPER '{' newsStructure '}'
 
-newscontent:
-	T_TITLE '=' T_QUOTEDSTRING T_ENTER T_DATE T_QUOTEDSTRING 
+newsStructure:
+	requiredFields newsDeclaration
 
+requiredFields:
+	titleField dateField structrueField
+
+titleField:
+	T_TITLE '=' quotedText T_ENTER
+
+dateField:
+	T_DATE '=' quotedText T_ENTER
+
+structureField:
+	T_STRUCTURE '{' colField showField '}' T_ENTER   #/// Precisa ter T_ENTER depois dos {} ????
+
+colField:
+	T_COL '=' T_DIGIT T_ENTER
+
+showField:
+	T_SHOW '=' T_NAME otherNews T_ENTER
+
+otherNews:
+		',' T_NAME otherNews
+	|    												#//VAZIO ??? 
+
+quotedText:
+	'"' listOfWords '"'
+
+listOfWords:
+	T_WORD listOfWords 									{//Concatena a porra toda!}
+	|  													#// VAZIO ??? 
 %%
 
 void yyerror(const char* errmsg)

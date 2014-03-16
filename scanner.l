@@ -15,7 +15,7 @@ ANY_CHAR .
 
 
 {WORD} {	yylval.str = (char*) strdup(yytext);	
-			return T_NAME;
+			return T_WORD;
 		}
 {DIGIT}		{return T_DIGIT;}
 {NAME}	{
@@ -39,6 +39,8 @@ ANY_CHAR .
 "AUTHOR"		{return T_AUTHOR;}		
 "STRUCTURE"		{return T_STRUCTURE;}		
 "ITEM"			{return T_ITEM;}
+"COL"			{return T_COL;}
+"SHOW"			{return T_SHOW;}
 "," 			{return ',';}	
 "{" 			{return '{';}
 "}" 			{return '}';}
@@ -50,6 +52,7 @@ ANY_CHAR .
 "/" 			{return '=';}
 ":" 			{return ':';}
 "'" 			{return '\'';}
+"\""			{return '"';}
 "\n"			{return T_ENTER}
 
 
