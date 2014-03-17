@@ -87,7 +87,8 @@ quotedText:
 	'"' listOfWords '"'
 
 listOfWords:
-	T_WORD listOfWords 									//Concatena a porra toda!}
+	  T_WORD listOfWords 
+	| T_NAME listOfWords									//Concatena a porra toda!}
 	|  													
 %%
 
