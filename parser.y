@@ -38,52 +38,52 @@ requiredNewspaperFields:
 	titleField dateField structureField
 
 structureField:
-	T_STRUCTURE '{' colField showField '}' T_ENTER   /// Precisa ter T_ENTER depois dos {} ????
+	T_STRUCTURE '{' colField showField '}'
 
 colField:
-	T_COL '=' T_DIGIT T_ENTER
+	T_COL '=' T_DIGIT
 
 showField:
-	T_SHOW '=' T_NAME otherNews T_ENTER
+	T_SHOW '=' T_NAME otherNews
 
 otherNews:
 		',' T_NAME otherNews
-	| 
+	|
 
 newsDeclaration:
 	T_NAME '{' newsParams '}' newsDeclaration
 	| 
 
 newsParams:
-	titleField abstractField authorField optionalDateField imageField sourceField textField structureField //ordered
+	titleField abstractField authorField optionalDateField optionalImageField optionalSourceField optionalTextField structureField //ordered
 
 titleField:
-	T_TITLE '=' quotedText T_ENTER
+	T_TITLE '=' quotedText
 
 dateField:
-	T_DATE '=' quotedText T_ENTER
+	T_DATE '=' quotedText
 
 optionalDateField:
 	dateField
 	|
 
 abstractField:
-	T_ABSTRACT '=' quotedText T_ENTER
+	T_ABSTRACT '=' quotedText
 
 authorField:
-	T_AUTHOR '=' quotedText T_ENTER
+	T_AUTHOR '=' quotedText
 
-imageField:
-	T_IMAGE '=' quotedText T_ENTER
+optionalImageField:
+	T_IMAGE '=' quotedText
 	|
 
-sourceField:
-	T_SOURCE '=' quotedText T_ENTER
+optionalSourceField:
+	T_SOURCE '=' quotedText
 	|
 
 
-textField:
-	T_TEXT '=' quotedText T_ENTER
+optionalTextField:
+	T_TEXT '=' quotedText
 	|
 
 quotedText:
@@ -92,7 +92,7 @@ quotedText:
 listOfWords:
 	  T_WORD listOfWords 
 	| T_NAME listOfWords									//Concatena a porra toda!}
-	|  													// VAZIO ??? 
+	|  													
 %%
 
 void yyerror(const char* errmsg)
