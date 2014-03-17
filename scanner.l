@@ -43,7 +43,10 @@ ANY_CHAR .
 
 
 {WHITESPACE} /* ignore */ ;
-{DIGIT}		{return T_DIGIT;}
+{DIGIT}	{	
+			yylval.intval = atoi(yytext);
+			return T_DIGIT;
+			}
 {NAME}	{
 			yylval.str = (char*) strdup(yytext);
 			printf("nameou:%s\n", yylval.str);	

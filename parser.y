@@ -23,7 +23,6 @@ int yywrap(void);
 
 
 %%
-
 initial:
 	comment {printf("%s", $1);}
 
@@ -96,7 +95,7 @@ quotedText:
 listOfWords:
 	  T_WORD listOfWords 
 	| T_NAME listOfWords									//Concatena a porra toda!}
-	|  													
+	|													
 %%
 
 void yyerror(const char* errmsg)
