@@ -24,7 +24,6 @@ int yywrap(void);
 
 
 %%
-
 initial:
 	newspaper {printf("%s", $1);}
 
@@ -98,8 +97,6 @@ listOfWords:
 	  T_WORD listOfWords { $$ = concat(3, $1, " ", $2);}
 	| T_NAME listOfWords { $$ = concat(3, $1, " ", $2);}									//Concatena a porra toda!}
 	|  	{$$ = "";}												
-
-
 %%
 
 void yyerror(const char* errmsg)
