@@ -5,7 +5,7 @@
 
 NAME [a-z][_a-zA-Z0-9]*
 DIGIT  [0-9]+
-WHITESPACE [ \n\r\t]+
+WHITESPACE [ \r\t]+
 WORD [a-zA-Z\x00-\x7F]
 ANY_CHAR .
 
@@ -15,7 +15,6 @@ ANY_CHAR .
 %%
 
 
-{WHITESPACE} /* ignore */ ;
 "NEWSPAPER" 	{return T_NEWSPAPER;}
 "TITLE" 		{return T_TITLE;}
 "DATE"			{return T_DATE;}
@@ -36,12 +35,13 @@ ANY_CHAR .
 "#" 			{return '#';}
 "*" 			{return '*';}
 "=" 			{return '=';}
-"/" 			{return '=';}
+"/" 			{return '/';}
 ":" 			{return ':';}
 "'" 			{return '\'';}
 "\""			{printf("quotou");return '"';}
+"\n"			{printf("ENTREOUUU"); return T_ENTER;}
 
-
+{WHITESPACE} /* ignore */ ;
 {DIGIT}		{return T_DIGIT;}
 {NAME}	{
 			yylval.str = (char*) strdup(yytext);
