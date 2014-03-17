@@ -1,0 +1,20 @@
+Editorial1{
+			title= "O que não sabemos que não sabemos"
+			abstract= "Frase antológica outro dia do ministro da Justiça, Tarso Genro, lembrou outra frase, brilhante, 
+				de Donald Rumsfeld, o ex-secretário da Defesa de George W. Bush. Primeiro, a frase de Rummy, 
+				falando sobre os perigos da ameaça terrorista contra os EUA: \"Há coisas que sabemos que sabemos. 
+				E há desconhecidos conhecidos. Quer dizer, há coisas que sabemos que não sabemos. Mas há ainda 
+				desconhecidos desconhecidos. Há coisas que não sabemos que não sabemos. \" O maior perigo estará 
+				sempre nos \"desconhecidos desconhecidos\", de onde surgem coisas como os aviões do 11 de 
+				Setembro se chocando contra as torres de Nova York."
+
+			image= "./sergio.jpg"
+
+			author= "Sérgio Malbergier"
+
+			structure {
+				col= 1
+				show= title, abstract, image, author
+			}
+
+}
