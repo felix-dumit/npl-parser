@@ -18,10 +18,13 @@ int yywrap(void);
 %token T_NEWSPAPER T_TITLE T_DATE T_ABSTRACT T_TEXT T_SOURCE T_IMAGE T_AUTHOR T_STRUCTURE T_ITEM 
 %token T_COL T_SHOW
 
+%type <str> regra
 
 
 
 %%
+
+regra: T_WORD T_WORD {sprintf($$, "regra marota: %s", $1);}
 
 comment: '/' '/' listOfWords
 
