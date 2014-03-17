@@ -39,7 +39,7 @@ ANY_CHAR .
 "/" 			{return '=';}
 ":" 			{return ':';}
 "'" 			{return '\'';}
-"\""			{printf("quotou");return '"';}
+"\""			{return '"';}
 
 
 {DIGIT}		{return T_DIGIT;}
