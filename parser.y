@@ -18,15 +18,18 @@ int yywrap(void);
 %token T_NEWSPAPER T_TITLE T_DATE T_ABSTRACT T_TEXT T_SOURCE T_IMAGE T_AUTHOR T_STRUCTURE T_ITEM 
 %token T_COL T_SHOW
 
-%type <str> regra
+%type <str> regra comment
 
 
 
 %%
 
-regra: T_WORD T_WORD {sprintf($$, "regra marota: %s", $1);}
+initial:
+	regra {printf("%s", $1);}
 
-comment: '/' '/' listOfWords
+regra: T_NAME T_NAME {sprintf($$, "regra marota: %s", $1);}
+
+comment: '/' '/' listOfWords {printf("comment: %s", $1);}
 
 newspaper:
 	T_NEWSPAPER '{' newspaperStructure '}'
