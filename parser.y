@@ -26,12 +26,12 @@ int yywrap(void);
 %%
 
 initial:
-	comment {printf("%s", $1);}
+	newspaper {printf("%s", $1);}
 
 regra: T_NAME T_NAME {$$ = concat(2, "regra marota: ", $1);}
 
 comment: 
-		'/' '/' listOfWords T_ENTER {$$ = concat(2, "comment:", $3);}
+		'/' '/' listOfWords T_ENTER {$$ = "";}
 
 newspaper:
 	T_NEWSPAPER '{' newspaperStructure '}'
