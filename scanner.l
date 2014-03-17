@@ -4,10 +4,8 @@
 
 
 NAME [a-z][_a-zA-Z0-9]*
-/*TITLE ===.+===*/
 DIGIT  [0-9]+
 WHITESPACE [ \n\r\t]+
-/*  COMMENT //.*\n  */
 WORD [a-zA-Z\x00-\x7F]
 ANY_CHAR .
 
@@ -16,15 +14,6 @@ ANY_CHAR .
 
 %%
 
-
-{WORD} {	yylval.str = (char*) strdup(yytext);	
-			return T_WORD;
-		}
-{DIGIT}		{return T_DIGIT;}
-{NAME}	{
-			yylval.str = (char*) strdup(yytext);	
-			return T_NAME;
-			}
 
 {WHITESPACE} /* ignore */ ;
 "NEWSPAPER" 	{return T_NEWSPAPER;}
@@ -50,8 +39,19 @@ ANY_CHAR .
 "/" 			{return '=';}
 ":" 			{return ':';}
 "'" 			{return '\'';}
-"\""			{return '"';}
-"\n"			{return T_ENTER;}
+"\""			{printf("quotou");return '"';}
+
+
+{DIGIT}		{return T_DIGIT;}
+{NAME}	{
+			yylval.str = (char*) strdup(yytext);
+			printf("nameou:%s\n", yylval.str);	
+			return T_NAME;
+			}
+{WORD} {	yylval.str = (char*) strdup(yytext);	
+			printf("wordou: %s\n", yylval.str);
+			return T_WORD;
+		}
 
 
 
