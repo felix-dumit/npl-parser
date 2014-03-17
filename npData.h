@@ -20,10 +20,14 @@ typedef struct nItem
 
 
 newsItem* newsItemSetGet(char* string, char* fieldName);
+char* convertNewsItemToHTML(newsItem* ni);
+
 
 
 newsItem* newsItemSetGet(char* string, char* fieldName){
-	static newsItem* staticItem = (newsItem*) malloc(sizeof(newsItem));;
+	static newsItem* staticItem = NULL;
+
+	if(staticItem == NULL) staticItem = (newsItem*) malloc(sizeof(newsItem));
 	
 	if(strcmp(fieldName,"title") == 0) staticItem->title = strdup(string);
 	else if(strcmp(fieldName,"abstract") == 0) staticItem->abstract = strdup(string);
@@ -36,6 +40,9 @@ newsItem* newsItemSetGet(char* string, char* fieldName){
 	return staticItem;												
 }
 
+char* convertNewsItemToHTML(newsItem* ni){
+	return "noticiaAAaaaaAAAAa";
+}
 
 /*
 typedef struct np{

@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include "helpers.h"
+#include "npData.h"
 
 void yyerror(const char* errmsg);
 int yywrap(void);
@@ -63,7 +64,7 @@ showField:
 	T_SHOW '=' T_NAME otherNews T_ENTER			{$$ = concat(3,$3,";",$4);}
 
 otherNews:
-		',' T_NAME otherNews					{$$ = concat(,$2,";",$3);}
+		',' T_NAME otherNews					{$$ = concat(3,$2,";",$3);}
 	|											{$$ = "";}
 
 newsDeclaration:

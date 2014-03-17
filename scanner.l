@@ -38,7 +38,7 @@ ANY_CHAR .
 "/" 			{return '/';}
 ":" 			{return ':';}
 "'" 			{return '\'';}
-"\n"			{printf("ENTREOUUU"); return T_ENTER;}
+"\n"			{return T_ENTER;}
 "\""			{return '"';}
 
 
@@ -49,11 +49,11 @@ ANY_CHAR .
 			}
 {NAME}	{
 			yylval.str = (char*) strdup(yytext);
-			printf("nameou:%s\n", yylval.str);	
+			//printf("nameou:%s\n", yylval.str);	
 			return T_NAME;
 			}
 {WORD} {	yylval.str = (char*) strdup(yytext);	
-			printf("wordou: %s\n", yylval.str);
+			//printf("wordou: %s\n", yylval.str);
 			return T_WORD;
 		}
 
