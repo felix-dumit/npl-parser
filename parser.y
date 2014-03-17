@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include "helpers.h"
 
 void yyerror(const char* errmsg);
 int yywrap(void);
@@ -18,7 +19,7 @@ int yywrap(void);
 %token T_NEWSPAPER T_TITLE T_DATE T_ABSTRACT T_TEXT T_SOURCE T_IMAGE T_AUTHOR T_STRUCTURE T_ITEM 
 %token T_COL T_SHOW
 
-%type <str> regra comment listOfWords 
+%type <str> regra comment listOfWords quotedText
 
 
 
@@ -26,10 +27,10 @@ int yywrap(void);
 initial:
 	comment {printf("%s", $1);}
 
-regra: T_NAME T_NAME {sprintf($$, "regra marota: %s", $1);}
+regra: T_NAME T_NAME {$$ = concat(2, "regra marota: ", $1);}
 
 comment: 
-		'/' '/' listOfWords T_ENTER {sprintf($$, "comment: %s", $3);}
+		'/' '/' listOfWords T_ENTER {$$ = concat(2, "comment:", $3);}
 
 newspaper:
 	T_NEWSPAPER '{' newspaperStructure '}'
@@ -90,12 +91,12 @@ optionalTextField:
 	|
 
 quotedText:
-	'"' listOfWords '"'
+	'"' listOfWords '"' {$$ = $;}
 
 listOfWords:
-	  T_WORD listOfWords 
-	| T_NAME listOfWords									//Concatena a porra toda!}
-	|													
+	  T_WORD listOfWords { $$ = concat(3, $1, " ", $2);}
+	| T_NAME listOfWords { $$ = concat(3, $1, " ", $2);}									//Concatena a porra toda!}
+	|  	{$$ = "";}												
 %%
 
 void yyerror(const char* errmsg)
