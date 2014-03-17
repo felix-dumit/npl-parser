@@ -4,12 +4,15 @@
 
 
 NAME [a-z][_a-zA-Z0-9]*
-TITLE ===.+===
+/*TITLE ===.+===*/
 DIGIT  [0-9]+
 WHITESPACE [ \n\r\t]+
-COMMENT //.*\n
+/*  COMMENT //.*\n  */
 WORD [a-zA-Z\x00-\x7F]
 ANY_CHAR .
+
+
+%option case-insensitive
 
 %%
 
@@ -22,20 +25,15 @@ ANY_CHAR .
 			yylval.str = (char*) strdup(yytext);	
 			return T_NAME;
 			}
-{TITLE} {
-			yylval.str = (char*) strdup(yytext);	
-			return T_TEXT_TITLE;
-}
 
-{COMMENT}
 {WHITESPACE} /* ignore */ ;
 "NEWSPAPER" 	{return T_NEWSPAPER;}
-"TITLE" 		{return T_TITLE; }
+"TITLE" 		{return T_TITLE;}
 "DATE"			{return T_DATE;}
 "ABSTRACT"		{return T_ABSTRACT;}
 "TEXT"			{return T_TEXT;}
 "SOURCE"		{return T_SOURCE;}
-"IMAGE"			{return T_IMAGE;}		
+"IMAGE"			{return T_IMAGE;}		 
 "AUTHOR"		{return T_AUTHOR;}		
 "STRUCTURE"		{return T_STRUCTURE;}		
 "ITEM"			{return T_ITEM;}
@@ -53,7 +51,7 @@ ANY_CHAR .
 ":" 			{return ':';}
 "'" 			{return '\'';}
 "\""			{return '"';}
-"\n"			{return T_ENTER}
+"\n"			{return T_ENTER;}
 
 
 

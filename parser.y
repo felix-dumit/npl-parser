@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 void yyerror(const char* errmsg);
-void yywrap(void);
+int yywrap(void);
 
 %}
 
@@ -12,46 +12,30 @@ void yywrap(void);
 }
 
 %token <intval> T_DIGIT
-%token <str> T_NAME
+%token <str> T_NAME T_WORD T_TEXT_TITLE
 %token T_ENTER
 
-%token T_NEWSPAPER
-%token T_TITLE
-%token T_DATE
-%token T_ABSTRACT
-%token T_TEXT
-%token T_TEXT_TITLE
-%token T_SOURCE
-%token T_IMAGE
-%token T_AUTHOR
-%token T_STRUCTURE
-%token T_ITEM
-%token T_COL
-%token T_SHOW
+%token T_NEWSPAPER T_TITLE T_DATE T_ABSTRACT T_TEXT T_SOURCE T_IMAGE T_AUTHOR T_STRUCTURE T_ITEM 
+%token T_COL T_SHOW
+
 
 
 
 %%
 
-comment: '/' '/' T_STRING
+comment: '/' '/' listOfWords
 
 newspaper:
-	T_NEWSPAPER '{' newsStructure '}'
+	T_NEWSPAPER '{' newspaperStructure '}'
 
-newsStructure:
-	requiredFields newsDeclaration
+newspaperStructure:
+	requiredNewspaperFields newsDeclaration
 
-requiredFields:
-	titleField dateField structrueField
-
-titleField:
-	T_TITLE '=' quotedText T_ENTER
-
-dateField:
-	T_DATE '=' quotedText T_ENTER
+requiredNewspaperFields:
+	titleField dateField structureField
 
 structureField:
-	T_STRUCTURE '{' colField showField '}' T_ENTER   #/// Precisa ter T_ENTER depois dos {} ????
+	T_STRUCTURE '{' colField showField '}' T_ENTER   /// Precisa ter T_ENTER depois dos {} ????
 
 colField:
 	T_COL '=' T_DIGIT T_ENTER
@@ -61,14 +45,50 @@ showField:
 
 otherNews:
 		',' T_NAME otherNews
-	|    												#//VAZIO ??? 
+	| 
+
+newsDeclaration:
+	T_NAME '{' newsParams '}' newsDeclaration
+	| 
+
+newsParams:
+	titleField abstractField authorField optionalDateField imageField sourceField textField structureField //ordered
+
+titleField:
+	T_TITLE '=' quotedText T_ENTER
+
+dateField:
+	T_DATE '=' quotedText T_ENTER
+
+optionalDateField:
+	dateField
+	|
+
+abstractField:
+	T_ABSTRACT '=' quotedText T_ENTER
+
+authorField:
+	T_AUTHOR '=' quotedText T_ENTER
+
+imageField:
+	T_IMAGE '=' quotedText T_ENTER
+	|
+
+sourceField:
+	T_SOURCE '=' quotedText T_ENTER
+	|
+
+
+textField:
+	T_TEXT '=' quotedText T_ENTER
+	|
 
 quotedText:
 	'"' listOfWords '"'
 
 listOfWords:
-	T_WORD listOfWords 									{//Concatena a porra toda!}
-	|  													#// VAZIO ??? 
+	T_WORD listOfWords 									//Concatena a porra toda!}
+	|  													// VAZIO ??? 
 %%
 
 void yyerror(const char* errmsg)
@@ -77,15 +97,12 @@ void yyerror(const char* errmsg)
 }
 
 
-void yywrap(void){
-	return 1;
-}
-
-
-void main()
+int yywrap(void) { return 1; }
+ 
+int main(int argc, char** argv)
 {
-	yyparse();
-	return 0;
+     yyparse();
+     return 0;
 }
 
 
