@@ -38,8 +38,9 @@ ANY_CHAR .
 "/" 			{return '/';}
 ":" 			{return ':';}
 "'" 			{return '\'';}
-"\""			{printf("quotou");return '"';}
 "\n"			{printf("ENTREOUUU"); return T_ENTER;}
+"\""			{return '"';}
+
 
 {WHITESPACE} /* ignore */ ;
 {DIGIT}		{return T_DIGIT;}
