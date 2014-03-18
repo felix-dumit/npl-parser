@@ -40,11 +40,28 @@ newsItem* newsItemSetGet(char* string, char* fieldName){
 	return staticItem;												
 }
 
+
 char* convertNewsItemToHTML(newsItem* ni){
 	return "noticiaAAaaaaAAAAa";
 }
 
 /*
+
+newsItem* duplicateNewsItem(newsItem* oldItem){
+	newsItem *item = (newsItem*) malloc(sizeof(newsItem));
+	item->title = strdup(oldItem->title);
+	item->abstract = strdup(oldItem->abstract);
+	item->author = strdup(oldItem->author);
+	item->date = strdup(oldItem->date);
+	item->text = strdup(oldItem->text);
+	item->text = strdup(oldItem->text);
+	item->source = strdup(oldItem->source);
+	item->image = strdup(oldItem->image);
+
+	if(oldItem->structure == NULL) item->structure = NULL;
+	
+}
+
 typedef struct np{
 	char *title;
 	char *date;
