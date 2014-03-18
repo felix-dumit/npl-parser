@@ -120,6 +120,32 @@ newsItem* newsItemSetGet(char* string, char* fieldName){
     return staticItem;                                              
 }
 
-char* convertNewsItemToHTML(newsItem* ni){
-    return "noticiaAAaaaaAAAAa";
+void convertNewsItemToHTML(newsItem* ni){
+    char* html = "<html><body>";
+
+    char** showList = str_split(ni->structure->show,';');
+    int i;
+
+    for(i=0; showList[i];i++){
+        if(strcmp(showList[i],"title") == 0 && strlen(ni->title) > 0)
+            html = concat(2,html,ni->title);
+        else if(strcmp(showList[i],"abstract") == 0 && strlen(ni->abstract) > 0)
+            html = concat(2,html,ni->abstract); 
+        else if(strcmp(showList[i],"author") == 0 && strlen(ni->author) > 0)
+            html = concat(2,html,ni->author);
+        else if(strcmp(showList[i],"date") == 0 && strlen(ni->date) > 0)
+            html = concat(2,html,ni->date);
+        else if(strcmp(showList[i],"text") == 0 && strlen(ni->text) > 0)
+            html = concat(2,html,ni->text); 
+        else if(strcmp(showList[i],"source") == 0 && strlen(ni->source) > 0)
+            html = concat(2,html,ni->source);
+        else if(strcmp(showList[i],"image") == 0 && strlen(ni->image) > 0)
+            html = concat(2,html,ni->image);
+    }  
+
+    html = concat(2,html,"</body></html>");
+
+    FILE* f = fopen(concat(2,ni->name,".html"),"w");
+    fprintf(f,"%s",html);
+    fclose(f);
 }

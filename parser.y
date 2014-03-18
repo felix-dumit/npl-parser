@@ -7,7 +7,7 @@ void yyerror(const char* errmsg);
 int yywrap(void);
 
 newsItem* newsItemSetGet(char* string, char* fieldName);
-char* convertNewsItemToHTML(newsItem* ni);
+void convertNewsItemToHTML(newsItem* ni);
 
 %}
 
@@ -27,17 +27,17 @@ char* convertNewsItemToHTML(newsItem* ni);
 
 %type <str> comment listOfWords quotedText titleField dateField abstractField 
 %type <str> authorField optionalDateField optionalImageField optionalSourceField optionalTextField
-%type <str> newsItem showField otherNews
+%type <str> showField otherNews
 
 %type <structure> structureField
 %type <intval> colField
 
-%type <nItem> fieldList newsParams
+%type <nItem> fieldList newsParams newsItem
 
 %%
 
 initial:
-	newsItem {printf("NEWSITEM -> %s\n", $1);}
+	newsItem {printf("NEWSITEM -> %s\n", $1->name);}
 
 comment: 
 		'/' '/' listOfWords T_ENTER {$$ = "";}
@@ -75,15 +75,11 @@ newsDeclaration:
 	| 
 
 newsItem:
-	T_NAME '{' newsParams '}' T_ENTER   		{ 
-													$3->name = strdup($1);
-
-													char* fileName = concat(2,$1,".html");
-													FILE *f = fopen(fileName,"w");
-													fprintf(f,convertNewsItemToHTML($3));
-													fclose(f);
-
-													$$ = $3;
+	T_NAME '{' T_ENTER newsParams T_ENTER '}' T_ENTER   		{ 
+													printf("NAME> %s\n",$1);
+													$4->name = strdup($1);
+													convertNewsItemToHTML($4);
+													$$ = $4;
 												}
 
 newsParams:
@@ -94,46 +90,42 @@ newsParams:
 												}
 
 fieldList:
-	titleField fieldList						{$$ = newsItemSetGet($1,"title");}
-	| abstractField fieldList					{$$ = newsItemSetGet($1,"abstract");}	
-	| authorField fieldList						{$$ = newsItemSetGet($1,"author");}
-	| optionalDateField fieldList				{$$ = newsItemSetGet($1,"date");}
-	| optionalImageField fieldList				{$$ = newsItemSetGet($1,"image");}
-	| optionalSourceField fieldList				{$$ = newsItemSetGet($1,"source");}
-	| optionalTextField	fieldList				{$$ = newsItemSetGet($1,"text");}
-	| 											{$$ = newsItemSetGet(NULL,"");}
+	titleField fieldList						{printf("TitleField> %s\n",$1);$$ = newsItemSetGet($1,"title");}
+	| abstractField fieldList					{printf("abstractField> %s\n",$1);$$ = newsItemSetGet($1,"abstract");}	
+	| authorField fieldList						{printf("authorField> %s\n",$1);$$ = newsItemSetGet($1,"author");}
+	| optionalDateField fieldList				{printf("optionalDateField> %s\n",$1);$$ = newsItemSetGet($1,"date");}
+	| optionalImageField fieldList				{printf("optionalImageField> %s\n",$1);$$ = newsItemSetGet($1,"image");}
+	| optionalSourceField fieldList				{printf("optionalSourceField> %s\n",$1);$$ = newsItemSetGet($1,"source");}
+	| optionalTextField	fieldList				{printf("optionalTextField> %s\n",$1);$$ = newsItemSetGet($1,"text");}
+	| 											{printf("blank");$$ = newsItemSetGet(NULL,"");}
 
 titleField:
-	T_TITLE '=' quotedText T_ENTER 				{ $$ = concat(3,"<h2 class=\"newsTitle\">",$3,"</h2>");}
+	T_TITLE '=' quotedText T_ENTER 				{printf("Title > %s\n",$3); $$ = concat(3,"<h2 class=\"newsTitle\">",$3,"</h2>");}
 
 dateField:
-	T_DATE '=' quotedText T_ENTER				{ $$ = concat(3,"<div class=\"newsDate\">",$3,"</div>");}
+	T_DATE '=' quotedText T_ENTER				{printf("Date > %s\n",$3); $$ = concat(3,"<div class=\"newsDate\">",$3,"</div>");}
 
 abstractField:
-	T_ABSTRACT '=' quotedText T_ENTER			{ $$ = concat(3,"<div class=\"newsAbstract\">",$3,"</div>");}
+	T_ABSTRACT '=' quotedText T_ENTER			{printf("Abstract > %s\n",$3); $$ = concat(3,"<div class=\"newsAbstract\">",$3,"</div>");}
 
 authorField:
-	T_AUTHOR '=' quotedText T_ENTER				{ $$ = concat(3,"<div class=\"newsAuthor\">",$3,"</div>");}
+	T_AUTHOR '=' quotedText T_ENTER				{printf("Author > %s\n",$3); $$ = concat(3,"<div class=\"newsAuthor\">",$3,"</div>");}
 
 optionalDateField:
-	dateField 									{ $$ = $1;}
-	| 											{ $$ = "";}
+	dateField 									{printf("OptDate > %s\n",$1); $$ = $1;}
 
 optionalImageField:
-	T_IMAGE '=' quotedText T_ENTER				{ $$ = concat(3,"<img class=\"newsImage\" src=\"",$3,"\">");}
-	|											{ $$ = "";}
+	T_IMAGE '=' quotedText T_ENTER				{printf("OptImage > %s\n",$3); $$ = concat(3,"<img class=\"newsImage\" src=\"",$3,"\">");}
 
 optionalSourceField:
-	T_SOURCE '=' quotedText T_ENTER				{ $$ = concat(3,"<div class=\"newsSource\">",$3,"</div>");}
-	|											{ $$ = "";}
+	T_SOURCE '=' quotedText T_ENTER				{printf("OptSource > %s\n",$3); $$ = concat(3,"<div class=\"newsSource\">",$3,"</div>");}
 
 
 optionalTextField:
-	T_TEXT '=' quotedText T_ENTER				{ $$ = concat(3,"<div class=\"newsText\">",$3,"</div>");}
-	|											{ $$ = "";}
+	T_TEXT '=' quotedText T_ENTER				{printf("OptText > %s\n",$3); $$ = concat(3,"<div class=\"newsText\">",$3,"</div>");}
 
 quotedText:
-	'"' listOfWords '"' 						{$$ = $2;}
+	'"' listOfWords '"' 						{printf("QuotedText>>> %s\n",$2); $$ = $2;}
 
 listOfWords:
 	  T_WORD listOfWords 						{ $$ = concat(3, $1, " ", $2);}
