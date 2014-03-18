@@ -1,17 +1,20 @@
 %{
+#include "npData.h"
 #include <stdio.h>
 #include "helpers.h"
-#include "npData.h"
 
 void yyerror(const char* errmsg);
 int yywrap(void);
+
+newsItem* newsItemSetGet(char* string, char* fieldName);
+char* convertNewsItemToHTML(newsItem* ni);
 
 %}
 
 %union{
 	char *str;
 	int intval;
-	newsStructure *structure;
+	structure *structure;
 	newsItem *nItem;
 }
 
@@ -51,7 +54,7 @@ requiredNewspaperFields:
 
 structureField:
 	T_STRUCTURE '{' colField showField '}'		{
-													newsStructure *temp = (newsStructure*) malloc(sizeof(newsStructure));
+													structure *temp = (structure*) malloc(sizeof(structure));
 													temp->col = $3;
 													temp->show = $4;
 													$$ = temp;
@@ -85,8 +88,9 @@ newsItem:
 
 newsParams:
 	fieldList structureField					{
-													$1->structure = $2;
-													$$ = $1;	
+													newsItem *it = $1;
+													it->structure = $2;
+													$$ = it;	
 												}
 
 fieldList:
@@ -117,16 +121,16 @@ optionalDateField:
 
 optionalImageField:
 	T_IMAGE '=' quotedText T_ENTER				{ $$ = concat(3,"<img class=\"newsImage\" src=\"",$3,"\">");}
-	|
+	|											{ $$ = "";}
 
 optionalSourceField:
 	T_SOURCE '=' quotedText T_ENTER				{ $$ = concat(3,"<div class=\"newsSource\">",$3,"</div>");}
-	|
+	|											{ $$ = "";}
 
 
 optionalTextField:
 	T_TEXT '=' quotedText T_ENTER				{ $$ = concat(3,"<div class=\"newsText\">",$3,"</div>");}
-	|
+	|											{ $$ = "";}
 
 quotedText:
 	'"' listOfWords '"' 						{$$ = $2;}
@@ -135,7 +139,12 @@ listOfWords:
 	  T_WORD listOfWords 						{ $$ = concat(3, $1, " ", $2);}
 	| T_NAME listOfWords 						{ $$ = concat(3, $1, " ", $2);}									
 	|  											{$$ = "";}												
+
+
+
+
 %%
+
 
 void yyerror(const char* errmsg)
 {

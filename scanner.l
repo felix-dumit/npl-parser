@@ -1,4 +1,6 @@
 %{
+
+#include "npData.h"
 #include "parser.h" 
 %}
 
