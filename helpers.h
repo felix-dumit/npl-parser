@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 
+
 char* concat(int count, ...);
 char** str_split(char* a_str, const char a_delim);
 char *trimwhitespace(char *str);
@@ -46,11 +47,11 @@ char** str_split(char* a_str, const char a_delim)
 
         while (token)
         {
-            assert(idx < count);
+            //assert(idx < count);
             *(result + idx++) = strdup(token);
             token = strtok(0, delim);
         }
-        assert(idx == count - 1);
+        //assert(idx == count - 1);
         *(result + idx) = 0;
     }
 
@@ -101,4 +102,24 @@ char *trimwhitespace(char *str)
   *(end+1) = 0;
 
   return str;
+}
+
+newsItem* newsItemSetGet(char* string, char* fieldName){
+    static newsItem* staticItem = NULL;
+
+    if(staticItem == NULL) staticItem = (newsItem*) malloc(sizeof(newsItem));
+    
+    if(strcmp(fieldName,"title") == 0) staticItem->title = strdup(string);
+    else if(strcmp(fieldName,"abstract") == 0) staticItem->abstract = strdup(string);
+    else if(strcmp(fieldName,"author") == 0) staticItem->author = strdup(string);
+    else if(strcmp(fieldName,"date") == 0) staticItem->date = strdup(string);
+    else if(strcmp(fieldName,"text") == 0) staticItem->text = strdup(string);
+    else if(strcmp(fieldName,"source") == 0)staticItem->source = strdup(string);
+    else if(strcmp(fieldName,"image") == 0)staticItem->image = strdup(string);
+    
+    return staticItem;                                              
+}
+
+char* convertNewsItemToHTML(newsItem* ni){
+    return "noticiaAAaaaaAAAAa";
 }
