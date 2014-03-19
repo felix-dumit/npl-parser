@@ -190,6 +190,8 @@ newspaper{
 
 			author= "Sérgio Malbergier"
 
+			text = "Eu sei que nada sei"
+
 			structure {
 				col= 1
 				show= title, abstract, image, author

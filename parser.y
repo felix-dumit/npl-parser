@@ -3,11 +3,9 @@
 #include <stdio.h>
 #include "helpers.h"
 
-void yyerror(const char* errmsg);
 int yywrap(void);
 
-newsItem* newsItemSetGet(char* string, char* fieldName);
-void convertNewsItemToHTML(newsItem* ni);
+int createNewNewsItem = 1;
 
 %}
 
@@ -20,18 +18,18 @@ void convertNewsItemToHTML(newsItem* ni);
 	newsItemList *newsItemList;
 }
 
-%token <intval> T_DIGIT
+%token <str> T_DIGIT
 %token <str> T_NAME T_WORD T_TEXT_TITLE T_QTEXT
 
 %token <str> T_NEWSPAPER T_TITLE T_DATE T_ABSTRACT T_TEXT T_SOURCE T_IMAGE T_AUTHOR T_STRUCTURE T_ITEM 
 %token <str> T_COL T_SHOW
 
-%type <str> listOfWords titleField abstractField 
+%type <str> titleField abstractField 
 %type <str> authorField optionalDateField optionalImageField optionalSourceField optionalTextField
-%type <str> showField showList field NPtitleField NPdateField
+%type <str> showField showList field NPtitleField NPdateField NPshowField nameList
 
-%type <structure> structureField
-%type <intval> colField
+%type <structure> structureField NPstructureField
+%type <str> colField
 
 %type <nItem> fieldList newsParams newsItem
 %type <newspaper> newspaperStructure requiredNewspaperFields
@@ -52,12 +50,13 @@ newspaper:
 newspaperStructure:
 	requiredNewspaperFields newsDeclaration		{ 
 													newspaper *temp = $1;
-													temp->newsList = $2;
+													temp->newsList = $2;										
+
 													$$ = temp;
 												}
 
 requiredNewspaperFields:
-	NPtitleField NPdateField structureField     {
+	NPtitleField NPdateField NPstructureField     {
 													newspaper *temp = (newspaper*) malloc(sizeof(newspaper));
 													temp->title = strdup($1);
 													temp->date = strdup($2);
@@ -68,13 +67,32 @@ requiredNewspaperFields:
 
 NPtitleField:
 	T_TITLE '=' T_QTEXT 	 	 				{//printf("Title > %s\n",$3); 
-													$$ = $3;}
+													$$ = strdup($3);}
 
 NPdateField:
 	T_DATE '=' T_QTEXT 	 						{//printf("Date > %s\n",$3); 
-													$$ = $3;}
+													$$ = strdup($3);}
 
+NPstructureField:
+	T_STRUCTURE '{' colField NPshowField '}'	{
+													structure *temp = (structure*) malloc(sizeof(structure));
+													temp->col = strdup($3);
+													temp->show = strdup($4);
+													$$ = temp;
+												}
 
+NPshowField:
+	T_SHOW '=' nameList							{$$ = strdup($3);}
+
+nameList:
+	nameList ',' T_NAME							{$$ = concat(3,$1,";",$3);}
+	|T_NAME										{$$ = $1;}
+
+colField:
+	T_COL '=' T_DIGIT  							{
+													//printf("ColField-> %s",$3);
+													$$ = strdup($3);
+												}
 
 structureField:
 	T_STRUCTURE '{' colField showField '}'		{
@@ -85,31 +103,25 @@ structureField:
 													$$ = temp;
 												}
 
-colField:
-	T_COL '=' T_DIGIT  							{
-													//printf("ColField-> %d",$3);
-													$$ = $3;
-												}
-
 showField:
 	T_SHOW '=' showList							{
-													$$ = $3;
+													$$ = strdup($3);
 													//printf("ShowField-> %s",$3);
 												}
 
 showList:
 	 showList ',' field							{//printf("showList-> %s\nNAME->%s",$1,$3);
 													$$ = concat(3,$1,";",$3);}
-	| field											{$$ = $1;}
+	| field											{$$ = strdup($1);}
 
 field:
-	T_TITLE 									{$$ = $1;}
-	| T_ABSTRACT							 	{$$ = $1;}			
-	| T_AUTHOR									{$$ = $1;}
-	| T_DATE									{$$ = $1;}
-	| T_IMAGE									{$$ = $1;}
-	| T_SOURCE									{$$ = $1;}
-	| T_TEXT									{$$ = $1;}
+	T_TITLE 									{$$ = strdup($1);}
+	| T_ABSTRACT							 	{$$ = strdup($1);}			
+	| T_AUTHOR									{$$ = strdup($1);}
+	| T_DATE									{$$ = strdup($1);}
+	| T_IMAGE									{$$ = strdup($1);}
+	| T_SOURCE									{$$ = strdup($1);}
+	| T_TEXT									{$$ = strdup($1);}
 
 
 newsDeclaration:
@@ -125,7 +137,17 @@ newsItem:
 	T_NAME '{' newsParams '}' 			   		{ 
 													//printf("NAME> %s\n",$1);
 													$3->name = strdup($1);
-													convertNewsItemToHTML($3);
+													
+													char* html = "<html>\n<meta charset=\"utf-8\">\n<body>\n";
+													char* newsHTML = convertNewsItemToHTML($3);
+
+													html = concat(3,html, newsHTML, "</body></html>");
+
+													FILE* f = fopen(concat(3,"newspaper/", $1,".html"),"w");
+													fprintf(f,"%s",html);
+													fclose(f);
+													
+													createNewNewsItem = 1;
 													$$ = $3;
 												}
 
@@ -187,21 +209,9 @@ optionalTextField:
 	T_TEXT '=' T_QTEXT 	 						{//printf("OptText > %s\n",$3); 
 													$$ = concat(3,"<div class=\"newsText\">",$3,"</div>\n");}
 
-listOfWords:
-	  T_NAME listOfWords 						{ $$ = concat(3, $1, " ", $2);}									
-	|  											{$$ = "";}												
-
-
 
 
 %%
-
-
-void yyerror(const char* errmsg)
-{
-	printf("\n***Error: %s\n", errmsg);
-	exit();
-}
 
 
 int yywrap(void) { return 1; }

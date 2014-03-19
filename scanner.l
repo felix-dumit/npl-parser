@@ -19,11 +19,10 @@ char *string_buf;
 %}
 
 
-NAME [a-z][_a-zA-Z0-9]*
+NAME [a-zA-Z][_a-zA-Z0-9]*
+CHARCT [[:alnum:]âôêéáíóúãõàçÂÜÔÊÉÁÍÓÚÃÕÀÇÜ[:punct:]]{-}[":#*"]
 DIGIT  [0-9]+
 WHITESPACE [ \n\r\t\f]
-LINK_TEXT \[ (.+) | (.+) \]
-EXTRA_C [éáíóúãõàçü]
 ANY_CHAR .
 
 %x IN_COMMENT
@@ -58,7 +57,8 @@ ANY_CHAR .
 					return T_STRUCTURE;}		
 "ITEM"			{	yylval.str = "item";
 					return T_ITEM;}
-"COL"			{	yylval.str = "col";
+"COL"			{	
+					yylval.str = "col";
 					return T_COL;}
 "SHOW"			{	yylval.str = "show";
 					return T_SHOW;}
@@ -72,42 +72,36 @@ ANY_CHAR .
 ":" 			{return ':';}
 "'" 			{return '\'';}
 
-"//"             {printf("begin comment"); BEGIN(IN_COMMENT);}
+"//"             {BEGIN(IN_COMMENT);}
 
  <IN_COMMENT>{
-			 \n      {printf("ent comment"); BEGIN(INITIAL);}
+			 \n      {BEGIN(INITIAL);}
 			 [^\n]+    // eat comment
 			 \/       // eat the lone /
  }
 
 
 "\""		{
-				printf("comecou string\n"); 
+				//printf("comecou string\n"); 
 				string_buf = "";
 				BEGIN(QUOTED_TEXT);
 			}
 <QUOTED_TEXT>{
 				"\""			{	
 									yylval.str = strdup(string_buf);              					
-									printf("terminou string:%s\n", yylval.str); 
+									//printf("terminou string:%s\n", yylval.str); 
 									BEGIN(INITIAL);
 									return T_QTEXT;
 								}
-				[éáíóúãõàçü[:punct:]]	{//printf("aqui:%c\n", (char) yytext[0]);
+				{CHARCT} 		{
 									string_buf = (char*) concat(2, string_buf, yytext);
 								} 
-				[[:alnum:]]+	{
-				     				printf("letras:%s\n", yytext);
-									string_buf = (char*) concat(2, string_buf, yytext);
-									//appendText(&string_buf, yytext);
-
-								}
 				[[:space:]]	{ string_buf = (char*) concat(2, string_buf, yytext); //appendText(&string_buf, yytext);
 }
 				":"				{string_buf = (char*) concat(2, string_buf, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 								 //appendText(&string_buf, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 								}
-				"\\\""			{string_buf = (char*) concat(2, string_buf, yytext);
+				"\\\""			{string_buf = (char*) concat(2, string_buf, "\"");
 								}
 				"''"			{
 									if(italicFlag){
@@ -159,7 +153,7 @@ ANY_CHAR .
 				[#]+	{
 							int numHS = strlen(yytext);
 
-							printf("#hashtag:%d %d\n", numHS, HScount);
+							//printf("#hashtag:%d %d\n", numHS, HScount);
 
 
 							if(numHS >HScount) {
@@ -237,7 +231,7 @@ ANY_CHAR .
 				["*"]+	{
 							int numBullet = strlen(yytext);
 
-							printf("*bullet:%d %d\n", numBullet, bulletCount);
+							//printf("*bullet:%d %d\n", numBullet, bulletCount);
 
 							if(numBullet > bulletCount){
 								for(; bulletCount < numBullet; bulletCount++){
@@ -301,29 +295,29 @@ ANY_CHAR .
 
 }
 
-[www.google.com | [[ img.com | text]]]
-
-
-
 {DIGIT}	{	
-			yylval.intval = atoi(yytext);
+			yylval.str = yytext;
 			return T_DIGIT;
 			}
 {NAME}	{
-			yylval.str = (char*) strdup(yytext);
-			printf("nameou:%s\n", yylval.str);	
+			yylval.str = (char*) tolowerStr(strdup(yytext));
+			//printf("nameou:%s\n", yylval.str);	
 			return T_NAME;
 			}
 
-{WHITESPACE} /* ignore */ ;
+{WHITESPACE} {;}/* ignore */ 
 
 {ANY_CHAR} {
 	printf("Caracter %c (ASCII %d) inesperado.\n", yytext[0], yytext[0]);
 }
-	
+
 %%
 
 // Codigo C
+void yyerror(char *message)
+ {
+  	fprintf(stderr, "%d: error: '%s' at '%s', yylval=%u\n", yylineno, message, yytext, yylval);
+ }	
 
 // 
 

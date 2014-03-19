@@ -3,15 +3,26 @@
 #include <string.h>
 #include <stdlib.h>
 
-
-char* concat2(int count, ...);
-void createNewsPaperHTML(newspaper*);
+char* tolowerStr(char* str);
+char* convertNewsItemToHTML(newsItem* ni);
 char* concat(int count, ...);
 char** str_split(char* a_str, const char a_delim);
 char *trimwhitespace(char *str);
 char* stripQuotes(char* line);
 newsItem* createNewsItem();
+newsItem* findNewsItem(newspaper* newspaper, char* newsItemName);
+void createNewsPaperHTML(newspaper* newspaper);
 
+
+char* tolowerStr(char* str)
+{
+    int i;
+    for(i=0; i<strlen(str); i++){
+        str[i] = tolower(str[i]);
+    }
+
+    return str;
+}
 
 char** str_split(char* a_str, const char a_delim)
 {
@@ -98,118 +109,158 @@ char *trimwhitespace(char *str)
     return str;
 
   // Trim trailing space
-  end = str + strlen(str) - 1;
-  while(end > str && isspace(*end)) end--;
+end = str + strlen(str) - 1;
+while(end > str && isspace(*end)) end--;
 
   // Write new null terminator
-  *(end+1) = 0;
+*(end+1) = 0;
 
-  return str;
+return str;
 }
-
-newsItem* newsItemSetGet(char* string, char* fieldName){
-    static newsItem* staticItem = NULL;
-
-    if(staticItem == NULL) staticItem = createNewsItem();
-    
-    if(strcmp(fieldName,"title") == 0)
-	{
-		if(staticItem->title != NULL) yyerror("Duplicate title tag");	
-		staticItem->title = strdup(string);
-	}
-    else if(strcmp(fieldName,"abstract") == 0)
-	{ 
-		if(staticItem->abstract != NULL) yyerror("Duplicate abstract tag");
-		staticItem->abstract = strdup(string);
-	}
-    else if(strcmp(fieldName,"author") == 0)
-	{
-		if(staticItem->author != NULL) yyerror("Duplicate author tag");		
-		staticItem->author = strdup(string);
-	}
-    else if(strcmp(fieldName,"date") == 0)
-	{	
-		if(staticItem->date != NULL) yyerror("Duplicate date tag");		
-		staticItem->date = strdup(string);
-	}
-    else if(strcmp(fieldName,"text") == 0)
-	{ 
-		if(staticItem->text != NULL) yyerror("Duplicate text tag");			
-		staticItem->text = strdup(string);
-	}
-    else if(strcmp(fieldName,"source") == 0)
-	{
-		if(staticItem->source != NULL) yyerror("Duplicate source tag");
-		staticItem->source = strdup(string);
-	}
-    else if(strcmp(fieldName,"image") == 0)
-	{
-		if(staticItem->image != NULL) yyerror("Duplicate image tag");	
-		staticItem->image = strdup(string);
-    	}
-    return staticItem;                                              
-}
-
-newsItem* createNewsItem(){
-	newsItem* temp = (newsItem*) malloc(sizeof(newsItem));
-	temp->title = NULL;
-	temp->abstract = NULL;
-	temp->author = NULL;
-	temp->date = NULL;
-	temp->text = NULL;
-	temp->source = NULL;
-	temp->image = NULL;
-    temp->structure = NULL;
-	return temp;
-}
-
-void convertNewsItemToHTML(newsItem* ni){
-    char* html = "<html><body>";
-
-    char** showList = str_split(ni->structure->show,';');
-    int i;
-
-    for(i=0; showList[i];i++){
-        if(strcmp(showList[i],"title") == 0 && strlen(ni->title) > 0)
-            html = concat(2,html,ni->title);
-        else if(strcmp(showList[i],"abstract") == 0 && strlen(ni->abstract) > 0)
-            html = concat(2,html,ni->abstract); 
-        else if(strcmp(showList[i],"author") == 0 && strlen(ni->author) > 0)
-            html = concat(2,html,ni->author);
-        else if(strcmp(showList[i],"date") == 0 && strlen(ni->date) > 0)
-            html = concat(2,html,ni->date);
-        else if(strcmp(showList[i],"text") == 0 && strlen(ni->text) > 0)
-            html = concat(2,html,ni->text); 
-        else if(strcmp(showList[i],"source") == 0 && strlen(ni->source) > 0)
-            html = concat(2,html,ni->source);
-        else if(strcmp(showList[i],"image") == 0 && strlen(ni->image) > 0)
-            html = concat(2,html,ni->image);
-    }  
-
-    html = concat(2,html,"</body></html>");
-
-    FILE* f = fopen(concat(2,ni->name,".html"),"w");
-    fprintf(f,"%s",html);
-    fclose(f);
-}
-
-void createNewsPaperHTML(newspaper* newspaper){
-    char* html = "<html>\n<meta charset=\"utf-8\">\n<body>\n";
-
-
-
-
-    html = concat(2,html,"</body>\n</html>\n");
-
-    FILE* f = fopen("newspaper.html","w");
-    fprintf(f,"%s",html);
-    fclose(f);
-}
-
 
 char* stripQuotes(char* line){
     char* stripped = strdup(line);
     if(stripped[0] == '"') stripped = stripped +  1;
     if(stripped[strlen(stripped) -1] == '"') stripped[strlen(stripped) -1] = '\0';
     return stripped;
+}
+
+newsItem* newsItemSetGet(char* string, char* fieldName){
+    static newsItem* staticItem = NULL;
+    extern int createNewNewsItem;
+
+    if(staticItem == NULL || createNewNewsItem) {
+        staticItem = createNewsItem();
+        createNewNewsItem = 0;
+    }
+    
+    if(strcmp(fieldName,"title") == 0)
+    {
+        if(staticItem->title != NULL) yyerror("Duplicate title tag");   
+        staticItem->title = strdup(string);
+    }
+    else if(strcmp(fieldName,"abstract") == 0)
+    { 
+        if(staticItem->abstract != NULL) yyerror("Duplicate abstract tag");
+        staticItem->abstract = strdup(string);
+    }
+    else if(strcmp(fieldName,"author") == 0)
+    {
+        if(staticItem->author != NULL) yyerror("Duplicate author tag");     
+        staticItem->author = strdup(string);
+    }
+    else if(strcmp(fieldName,"date") == 0)
+    {   
+        if(staticItem->date != NULL) yyerror("Duplicate date tag");     
+        staticItem->date = strdup(string);
+    }
+    else if(strcmp(fieldName,"text") == 0)
+    { 
+        if(staticItem->text != NULL) yyerror("Duplicate text tag");         
+        staticItem->text = strdup(string);
+    }
+    else if(strcmp(fieldName,"source") == 0)
+    {
+        if(staticItem->source != NULL) yyerror("Duplicate source tag");
+        staticItem->source = strdup(string);
+    }
+    else if(strcmp(fieldName,"image") == 0)
+    {
+        if(staticItem->image != NULL) yyerror("Duplicate image tag");   
+        staticItem->image = strdup(string);
+    }
+    return staticItem;                                              
+}
+
+newsItem* createNewsItem(){
+    newsItem* temp = (newsItem*) malloc(sizeof(newsItem));
+    temp->title = NULL;
+    temp->abstract = NULL;
+    temp->author = NULL;
+    temp->date = NULL;
+    temp->text = NULL;
+    temp->source = NULL;
+    temp->image = NULL;
+    temp->structure = NULL;
+    return temp;
+}
+
+char* convertNewsItemToHTML(newsItem* ni){
+
+    char** showList = str_split(strdup(ni->structure->show),';');
+    int i;
+
+    char* html = concat(3, "<div class=\"col", strdup(ni->structure->col),"\">\n");
+
+    for(i=0; showList[i];i++){
+        if(strcmp(showList[i],"title") == 0 && strlen(ni->title) > 0){
+            if( ni->text != NULL){
+                html = concat(4, html, "<a href=\"", strdup(ni->name),".html\">");
+            }
+            html = concat(2,html,strdup(ni->title));
+            if( ni->text != NULL){
+                html = concat(2, html, "</a>\n");
+            }
+        }
+        else if(strcmp(showList[i],"abstract") == 0 && strlen(ni->abstract) > 0)
+            html = concat(2,html,strdup(ni->abstract)); 
+        else if(strcmp(showList[i],"author") == 0 && strlen(ni->author) > 0)
+            html = concat(2,html,strdup(ni->author));
+        else if(strcmp(showList[i],"date") == 0 && strlen(ni->date) > 0)
+            html = concat(2,html,strdup(ni->date));
+        //else if(strcmp(showList[i],"text") == 0 && strlen(ni->text) > 0)
+        else if(strcmp(showList[i],"source") == 0 && strlen(ni->source) > 0)
+            html = concat(2,html,strdup(ni->source));
+        else if(strcmp(showList[i],"image") == 0 && strlen(ni->image) > 0)
+            html = concat(2,html,strdup(ni->image));
+    }  
+        if(ni->text)
+            html = concat(2,html,strdup(ni->text)); 
+
+    html = concat(2, html, "</div>\n");
+
+    return html;
+}
+
+void createNewsPaperHTML(newspaper* newspaper){
+
+    char* html = concat(3,"<html>\n<meta charset=\"utf-8\">\n<head><title>", newspaper->title,"</title></head>\n");
+
+
+    html = concat(6, html, "<body>\n<h1 class=\"newspaperTitle\">", newspaper->title, "<span class=\"newspaperDate\">",
+        newspaper->date, "</span></h1>\n");
+
+    html = concat(4, html, "<div class=\"mainContent col", newspaper->structure->col,"\">\n");
+    char** showList = str_split(newspaper->structure->show,';');
+
+    int i;
+    for(i=0; showList[i]; i++){
+        newsItem* item = findNewsItem(newspaper, showList[i]);
+        char* newsHTML = convertNewsItemToHTML(item);
+        html = concat(2, html, newsHTML);
+    }
+
+    html = concat(2,html,"</div>\n</body>\n</html>\n");
+    FILE* f = fopen("newspaper/newspaper.html","w");
+    fprintf(f,"%s",html);
+    fclose(f);
+}
+
+
+
+
+newsItem* findNewsItem(newspaper* newspaper, char* newsItemName){
+    newsItemList* p = newspaper->newsList;
+    do
+    {
+        printf("NEWSITEM:%s\n", p->nItem->name);
+        if(strcmp(p->nItem->name, newsItemName) == 0){
+            return p->nItem;
+        }
+        p = p->next;
+    }
+    while(p);
+
+    yyerror(concat(2, newsItemName," not found"));
+    return NULL;
 }

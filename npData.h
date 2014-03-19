@@ -2,7 +2,7 @@
 
 typedef struct _structure
 {
-	int col;
+	char* col;
 	char *show;
 } structure;
 
