@@ -16,6 +16,8 @@ void convertNewsItemToHTML(newsItem* ni);
 	int intval;
 	structure *structure;
 	newsItem *nItem;
+	newspaper *newspaper;
+	newsItemList *newsItemList;
 }
 
 %token <intval> T_DIGIT
@@ -26,29 +28,53 @@ void convertNewsItemToHTML(newsItem* ni);
 
 %type <str> listOfWords titleField dateField abstractField 
 %type <str> authorField optionalDateField optionalImageField optionalSourceField optionalTextField
-%type <str> showField showList field
+%type <str> showField showList field NPtitleField NPdateField
 
 %type <structure> structureField
 %type <intval> colField
 
 %type <nItem> fieldList newsParams newsItem
+%type <newspaper> newspaperStructure requiredNewspaperFields
 
+%type <newsItemList> newsDeclaration
 
 %%
 
 initial:
 	newsItem {printf("NEWSITEM -> %s\n", $1->name);}
-/*
+
 
 newspaper:
-	T_NEWSPAPER '{' newspaperStructure '}'
+	T_NEWSPAPER '{' newspaperStructure '}'      { 
+													createNewsPaperHTML($3);
+												}
 
 newspaperStructure:
-	requiredNewspaperFields newsDeclaration
+	requiredNewspaperFields newsDeclaration		{ 
+													newspaper *temp = $1;
+													temp->newsList = $2;
+													$$ = temp;
+												}
 
 requiredNewspaperFields:
-	titleField dateField structureField
-*/
+	NPtitleField NPdateField structureField     {
+													newspaper *temp = (newspaper*) malloc(sizeof(newspaper));
+													temp->title = strdup($1);
+													temp->date = strdup($2);
+													temp->structure = $3;
+													$$ = temp;	
+												}
+
+
+NPtitleField:
+	T_TITLE '=' T_QTEXT 	 	 				{//printf("Title > %s\n",$3); 
+													$$ = $3;}
+
+NPdateField:
+	T_DATE '=' T_QTEXT 	 						{//printf("Date > %s\n",$3); 
+													$$ = $3;}
+
+
 
 structureField:
 	T_STRUCTURE '{' colField showField '}'		{
@@ -87,8 +113,13 @@ field:
 
 
 newsDeclaration:
-	newsItem newsDeclaration
-	| 
+	newsItem newsDeclaration					{
+													newsItemList *new = (newsItemList*)malloc(sizeof(newsItemList));
+													new->nItem = $1;
+													new->next = $2;
+													$$ = new;
+												}
+	| 											{ $$ = NULL;}
 
 newsItem:
 	T_NAME '{' newsParams '}' 			   		{ 

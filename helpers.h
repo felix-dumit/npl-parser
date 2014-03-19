@@ -5,7 +5,7 @@
 
 
 char* concat2(int count, ...);
-
+void createNewsPaperHTML(newspaper*);
 char* concat(int count, ...);
 char** str_split(char* a_str, const char a_delim);
 char *trimwhitespace(char *str);
@@ -178,6 +178,20 @@ void convertNewsItemToHTML(newsItem* ni){
     fprintf(f,"%s",html);
     fclose(f);
 }
+
+void createNewsPaperHTML(newspaper* newspaper){
+    char* html = "<html><body>";
+
+
+
+
+    html = concat(2,html,"</body></html>");
+
+    FILE* f = fopen("newspaper.html","w");
+    fprintf(f,"%s",html);
+    fclose(f);
+}
+
 
 char* stripQuotes(char* line){
     char* stripped = strdup(line);
