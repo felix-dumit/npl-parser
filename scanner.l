@@ -7,8 +7,8 @@
 
 NAME [a-z][_a-zA-Z0-9]*
 DIGIT  [0-9]+
-WHITESPACE [ \r\t]+
-WORD [a-zA-Z\x00-\x7F]
+WHITESPACE [ \n\r\t]+
+QUOTEDTEXT \"(?:\\.|[^"\\])*\"
 ANY_CHAR .
 
 
@@ -17,18 +17,30 @@ ANY_CHAR .
 %%
 
 
-"NEWSPAPER" 	{return T_NEWSPAPER;}
-"TITLE" 		{return T_TITLE;}
-"DATE"			{return T_DATE;}
-"ABSTRACT"		{return T_ABSTRACT;}
-"TEXT"			{return T_TEXT;}
-"SOURCE"		{return T_SOURCE;}
-"IMAGE"			{return T_IMAGE;}		 
-"AUTHOR"		{return T_AUTHOR;}		
-"STRUCTURE"		{return T_STRUCTURE;}		
-"ITEM"			{return T_ITEM;}
-"COL"			{return T_COL;}
-"SHOW"			{return T_SHOW;}
+"NEWSPAPER" 	{	yylval.str = "newspaper";
+					return T_NEWSPAPER;}
+"TITLE" 		{	yylval.str = "title";
+					return T_TITLE;}
+"DATE"			{	yylval.str = "date";
+					return T_DATE;}
+"ABSTRACT"		{	yylval.str = "abstract";
+					return T_ABSTRACT;}
+"TEXT"			{	yylval.str = "text";
+					return T_TEXT;}
+"SOURCE"		{	yylval.str = "source";
+					return T_SOURCE;}
+"IMAGE"			{	yylval.str = "image";
+					return T_IMAGE;}		 
+"AUTHOR"		{	yylval.str = "author";
+					return T_AUTHOR;}		
+"STRUCTURE"		{	yylval.str = "structure";
+					return T_STRUCTURE;}		
+"ITEM"			{	yylval.str = "item";
+					return T_ITEM;}
+"COL"			{	yylval.str = "col";
+					return T_COL;}
+"SHOW"			{	yylval.str = "show";
+					return T_SHOW;}
 "," 			{return ',';}	
 "{" 			{return '{';}
 "}" 			{return '}';}
@@ -40,9 +52,6 @@ ANY_CHAR .
 "/" 			{return '/';}
 ":" 			{return ':';}
 "'" 			{return '\'';}
-"\n"			{return T_ENTER;}
-"\""			{return '"';}
-
 
 {WHITESPACE} /* ignore */ ;
 {DIGIT}	{	
@@ -51,12 +60,12 @@ ANY_CHAR .
 			}
 {NAME}	{
 			yylval.str = (char*) strdup(yytext);
-			//printf("nameou:%s\n", yylval.str);	
+			printf("nameou:%s\n", yylval.str);	
 			return T_NAME;
 			}
-{WORD} {	yylval.str = (char*) strdup(yytext);	
-			//printf("wordou: %s\n", yylval.str);
-			return T_WORD;
+{QUOTEDTEXT} {	yylval.str = (char*) stripQuotes(strdup(yytext));	
+			//printf("qtext: %s\n", yylval.str);
+			return T_QTEXT;
 		}
 
 

@@ -14,7 +14,7 @@ Editorial1{
 
 			structure {
 				col= 1
-				show= title, abstract, image, author
+				show= abstract, title, image, author
 			}
 
 }

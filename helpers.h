@@ -8,6 +8,7 @@
 char* concat(int count, ...);
 char** str_split(char* a_str, const char a_delim);
 char *trimwhitespace(char *str);
+char* stripQuotes(char* line);
 
 
 char** str_split(char* a_str, const char a_delim)
@@ -148,4 +149,11 @@ void convertNewsItemToHTML(newsItem* ni){
     FILE* f = fopen(concat(2,ni->name,".html"),"w");
     fprintf(f,"%s",html);
     fclose(f);
+}
+
+char* stripQuotes(char* line){
+    char* stripped = strdup(line);
+    if(stripped[0] == '"') stripped = stripped +  1;
+    if(stripped[strlen(stripped) -1] == '"') stripped[strlen(stripped) -1] = '\0';
+    return stripped;
 }
