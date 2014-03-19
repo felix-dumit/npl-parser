@@ -26,7 +26,7 @@ void convertNewsItemToHTML(newsItem* ni);
 %token <str> T_NEWSPAPER T_TITLE T_DATE T_ABSTRACT T_TEXT T_SOURCE T_IMAGE T_AUTHOR T_STRUCTURE T_ITEM 
 %token <str> T_COL T_SHOW
 
-%type <str> listOfWords titleField dateField abstractField 
+%type <str> listOfWords titleField abstractField 
 %type <str> authorField optionalDateField optionalImageField optionalSourceField optionalTextField
 %type <str> showField showList field NPtitleField NPdateField
 
@@ -41,7 +41,7 @@ void convertNewsItemToHTML(newsItem* ni);
 %%
 
 initial:
-	newsItem {printf("NEWSITEM -> %s\n", $1->name);}
+	newspaper {printf("NEWSPAPER DONE!\n");}
 
 
 newspaper:
@@ -162,10 +162,6 @@ titleField:
 	T_TITLE '=' T_QTEXT 	 	 				{//printf("Title > %s\n",$3); 
 													$$ = concat(3,"<h2 class=\"newsTitle\">",$3,"</h2>\n");}
 
-dateField:
-	T_DATE '=' T_QTEXT 	 						{//printf("Date > %s\n",$3); 
-													$$ = concat(3,"<div class=\"newsDate\">",$3,"</div>\n");}
-
 abstractField:
 	T_ABSTRACT '=' T_QTEXT 	 					{//printf("Abstract > %s\n",$3); 
 													$$ = concat(3,"<div class=\"newsAbstract\">",$3,"</div>\n");}
@@ -175,8 +171,8 @@ authorField:
 													$$ = concat(3,"<div class=\"newsAuthor\">",$3,"</div>\n");}
 
 optionalDateField:
-	dateField 									{//printf("OptDate > %s\n",$1); 
-													$$ = $1;}
+	T_DATE '=' T_QTEXT  						{//printf("OptDate > %s\n",$1); 
+													$$ = concat(3,"<div class=\"newsDate\">",$3,"</div>\n");}
 
 optionalImageField:
 	T_IMAGE '=' T_QTEXT 	 					{//printf("OptImage > %s\n",$3); 
