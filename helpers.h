@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 
+char* concat2(int count, ...);
 
 char* concat(int count, ...);
 char** str_split(char* a_str, const char a_delim);
@@ -55,6 +56,32 @@ char** str_split(char* a_str, const char a_delim)
         //assert(idx == count - 1);
         *(result + idx) = 0;
     }
+
+    return result;
+}
+
+char* concat2(int count, ...)
+{
+    va_list ap;
+    int len = 1, i;
+
+    va_start(ap, count);
+    for(i=0 ; i<count ; i++)
+        len += strlen(va_arg(ap, char*));
+    va_end(ap);
+
+    char *result = (char*) calloc(sizeof(char),len);
+
+    // Actually concatenate strings
+    va_start(ap, count);
+    for(i=0 ; i<count ; i++)
+    {
+        
+        char *s = va_arg(ap, char*);
+        strcat(result, s);
+
+    }
+    va_end(ap);
 
     return result;
 }

@@ -40,8 +40,6 @@ initial:
 	newsItem {printf("NEWSITEM -> %s\n", $1->name);}
 /*
 
-comment: 
-		'/' '/' listOfWords {$$ = "";}
 newspaper:
 	T_NEWSPAPER '{' newspaperStructure '}'
 
