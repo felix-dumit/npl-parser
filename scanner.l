@@ -92,38 +92,41 @@ ANY_CHAR .
 									printf("terminou string:%s\n", yylval.str); 
 									BEGIN(INITIAL);
 									return T_QTEXT;
+								}
+				[éáíóúãõàçü[:punct:]]	{//printf("aqui:%c\n", (char) yytext[0]);
+									string_buf = (char*) concat(2, string_buf, yytext);
 								} 
 				[[:alnum:]]+	{
 				     				printf("letras:%s\n", yytext);
-									string_buf = (char*) concat2(2, string_buf, yytext);
+									string_buf = (char*) concat(2, string_buf, yytext);
 									//appendText(&string_buf, yytext);
 
 								}
-				[[:space:]]	{ string_buf = (char*) concat2(2, string_buf, yytext); //appendText(&string_buf, yytext);
+				[[:space:]]	{ string_buf = (char*) concat(2, string_buf, yytext); //appendText(&string_buf, yytext);
 }
-				":"				{printf("dois poiontos\n"); string_buf = (char*) concat2(2, string_buf, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+				":"				{string_buf = (char*) concat(2, string_buf, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 								 //appendText(&string_buf, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 								}
-				"\\\""			{string_buf = (char*) concat2(2, string_buf, yytext);
+				"\\\""			{string_buf = (char*) concat(2, string_buf, yytext);
 								}
 				"''"			{
 									if(italicFlag){
-										string_buf = (char*) concat2(2, string_buf, "</i>");
+										string_buf = (char*) concat(2, string_buf, "</i>");
 										//appendText(&string_buf, "</i>");
 										italicFlag = 0;
 									}else{
-										string_buf = (char*) concat2(2, string_buf, "<i>");
+										string_buf = (char*) concat(2, string_buf, "<i>");
 										//appendText(&string_buf, "<i>");
 										italicFlag = 1;										
 									}
 								}
 				"'''"			{
 					if(boldFlag){
-						string_buf = (char*) concat2(2, string_buf, "</b>");
+						string_buf = (char*) concat(2, string_buf, "</b>");
 						//appendText(&string_buf, "</b>");
 						boldFlag = 0;
 					}else{
-						string_buf = (char*) concat2(2, string_buf, "<b>");
+						string_buf = (char*) concat(2, string_buf, "<b>");
 						//appendText(&string_buf, "</b>");
 						boldFlag = 1;										
 					}
@@ -131,23 +134,23 @@ ANY_CHAR .
 				"''''"	// de 4 nao pode
 				"'''''"			{
 					if(boldAndItalicFlag){
-						string_buf = (char*) concat2(2, string_buf, "</i></b>");
+						string_buf = (char*) concat(2, string_buf, "</i></b>");
 						//appendText(&string_buf, "</i></b>");
 						boldAndItalicFlag = 0;
 					}else{
-						string_buf = (char*) concat2(2, string_buf, "<b><i>");
+						string_buf = (char*) concat(2, string_buf, "<b><i>");
 						//appendText(&string_buf, "<b><i>");						
 						boldAndItalicFlag = 1;										
 					}
 				}
 				"==="	{
 							if(titleFlag){
-								string_buf = (char*) concat2(2, string_buf, "</h3>");
+								string_buf = (char*) concat(2, string_buf, "</h3>\n");
 								//appendText(&string_buf, "</h3>");
 
 								titleFlag = 0;
 							}else{
-								string_buf = (char*) concat2(2, string_buf, "<h3 class=\"intextTitle\">");
+								string_buf = (char*) concat(2, string_buf, "<h3 class=\"intextTitle\">");
 								//appendText(&string_buf, "<h3 class=\"intextTitle\">");
 								titleFlag = 1;
 							}
@@ -161,24 +164,24 @@ ANY_CHAR .
 
 							if(numHS >HScount) {
 								for(; HScount < numHS; HScount++){
-									string_buf = (char*) concat2(2, string_buf, "<ol>");
+									string_buf = (char*) concat(2, string_buf, "<ol>");
 								}
-								string_buf = (char*) concat2(2, string_buf, "<li>");
+								string_buf = (char*) concat(2, string_buf, "<li>");
 								//appendText(&string_buf, "<ol><li>");
 							}
 							else if(numHS < HScount){								
 
 								for(; HScount > numHS; HScount--) {
-									string_buf = (char*) concat2(2, string_buf, "</ol>");
+									string_buf = (char*) concat(2, string_buf, "</ol>\n");
 									//appendText(&string_buf, "</ol>");
 								}
 								HScount = numHS;
-								string_buf = (char*) concat2(2, string_buf, "<li>");
+								string_buf = (char*) concat(2, string_buf, "<li>");
 								//appendText(&string_buf, "<li>");
 
 							}
 							else if(numHS == HScount){	
-								string_buf = (char*) concat2(2, string_buf, "<li>");
+								string_buf = (char*) concat(2, string_buf, "<li>");
 								//appendText(&string_buf, "<li>");
 							}
 
@@ -188,45 +191,45 @@ ANY_CHAR .
 				
 				[[:cntrl:]]+/[^"#"]+\n {
 									if(LIopen){
-										string_buf = (char*) concat2(2, string_buf, "</li>");
+										string_buf = (char*) concat(2, string_buf, "</li>");
 										LIopen = 0;
 									} 
 									for(; HScount>0; HScount--) {
-										string_buf = (char*) concat2(2, string_buf, "</ol>");
+										string_buf = (char*) concat(2, string_buf, "</ol>\n");
 								//appendText(&string_buf, "</ol>");
 									} 
 								  }
 				[[:cntrl:]]+/[^"*"]+\n {
 									if(LIopen){
-										string_buf = (char*) concat2(2, string_buf, "</li>");
+										string_buf = (char*) concat(2, string_buf, "</li>");
 										LIopen = 0;
 									} 
 
 										for(; bulletCount>0; bulletCount--) {
-											string_buf = (char*) concat2(2, string_buf, "</ul>");
+											string_buf = (char*) concat(2, string_buf, "</ul>\n");
 									//appendText(&string_buf, "</ul>");
 										} 
 								  }
 				
 				[[:cntrl:]]+/["*""#"] {
 						if(LIopen){
-							string_buf = (char*) concat2(2, string_buf, "</li>");
+							string_buf = (char*) concat(2, string_buf, "</li>");
 							LIopen = 0;
 						} 
 				}
 				[[:cntrl:]]+/([^"*"#]) {
 							
 							if(LIopen){
-								string_buf = (char*) concat2(2, string_buf, "</li>");
+								string_buf = (char*) concat(2, string_buf, "</li>");
 								LIopen = 0;
 							} 
 							for(; bulletCount>0; bulletCount--) {
-								string_buf = (char*) concat2(2, string_buf, "</ul>");
+								string_buf = (char*) concat(2, string_buf, "</ul>\n");
 								//appendText(&string_buf, "</ul>");
 							} 
 
 							for(; HScount>0; HScount--){
-								string_buf = (char*) concat2(2, string_buf, "</ol>"); 
+								string_buf = (char*) concat(2, string_buf, "</ol>\n"); 
 								//appendText(&string_buf, "</ol>");
 							} 
 
@@ -238,26 +241,26 @@ ANY_CHAR .
 
 							if(numBullet > bulletCount){
 								for(; bulletCount < numBullet; bulletCount++){
-									string_buf = (char*) concat2(2, string_buf, "<ul>");
+									string_buf = (char*) concat(2, string_buf, "<ul>");
 
 								}
 
-								string_buf = (char*) concat2(2, string_buf, "<li>");
+								string_buf = (char*) concat(2, string_buf, "<li>");
 								//appendText(&string_buf, "<ul><li>");
 							}
 							else if(numBullet < bulletCount){								
 
 								for(; bulletCount > numBullet; bulletCount--) {
-									string_buf = (char*) concat2(2, string_buf, "</ul>");
+									string_buf = (char*) concat(2, string_buf, "</ul>\n");
 									//appendText(&string_buf, "</ul>");
 								}
 								bulletCount = numBullet;
-								string_buf = (char*) concat2(2, string_buf, "<li>");
+								string_buf = (char*) concat(2, string_buf, "<li>");
 								//appendText(&string_buf, "<li>");
 
 							}
 							else if(numBullet == bulletCount){	
-								string_buf = (char*) concat2(2, string_buf, "<li>");
+								string_buf = (char*) concat(2, string_buf, "<li>");
 								//appendText(&string_buf, "<li>");
 							}							
 
@@ -265,9 +268,40 @@ ANY_CHAR .
 
 							LIopen = 1;
 					}
+					"["[^"["]+"|".+"]"	{
+										char** link_parts = str_split(yytext, '|');
+										char* link = link_parts[0] + 1;
+										char* text = link_parts[1];
+										text[strlen(text)-1] = '\0';
+										string_buf = (char*) concat(6, string_buf, "<a href=\"", link,"\">", text, "</a>\n");
+										//printf("matchedLINK:%s\ntext:%s\n", link, text);
+									}
+					"["[^"|""["]+"]"		{
+										char* link = strdup(yytext);
+										link = link + 1;
+										link[strlen(link)-1] = '\0';
+										string_buf = (char*) concat(6, string_buf, "<a href=\"", link,"\">", link, "</a>\n");
+
+
+									}
+					"[[".+"|".+"]]" {
+										char** link_parts = str_split(yytext, '|');
+										char* link = link_parts[0] + 2;
+										char* text = link_parts[1];
+										text[strlen(text)-2] = '\0';
+										string_buf = (char*) concat(8, string_buf, "<figure><img src=\"", link, "\"alt=\"", text, "\"/><figcaption>", text, "</figcaption></figure>\n");
+									}
+					"[[".+"]]"		{
+										char* link = strdup(yytext);
+										link = link + 2;
+										link[strlen(link)-2] = '\0';
+										string_buf = (char*) concat(4, string_buf, "<img src=\"", link, "\"alt=\"missing image \"/>");
+
+									}
+
 }
 
-
+[www.google.com | [[ img.com | text]]]
 
 
 
