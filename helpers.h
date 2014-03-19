@@ -10,7 +10,7 @@ char* concat(int count, ...);
 char** str_split(char* a_str, const char a_delim);
 char *trimwhitespace(char *str);
 char* stripQuotes(char* line);
-
+newsItem* createNewsItem();
 
 
 char** str_split(char* a_str, const char a_delim)
@@ -136,17 +136,56 @@ char *trimwhitespace(char *str)
 newsItem* newsItemSetGet(char* string, char* fieldName){
     static newsItem* staticItem = NULL;
 
-    if(staticItem == NULL) staticItem = (newsItem*) malloc(sizeof(newsItem));
+    if(staticItem == NULL) staticItem = createNewsItem();
     
-    if(strcmp(fieldName,"title") == 0) staticItem->title = strdup(string);
-    else if(strcmp(fieldName,"abstract") == 0) staticItem->abstract = strdup(string);
-    else if(strcmp(fieldName,"author") == 0) staticItem->author = strdup(string);
-    else if(strcmp(fieldName,"date") == 0) staticItem->date = strdup(string);
-    else if(strcmp(fieldName,"text") == 0) staticItem->text = strdup(string);
-    else if(strcmp(fieldName,"source") == 0)staticItem->source = strdup(string);
-    else if(strcmp(fieldName,"image") == 0)staticItem->image = strdup(string);
-    
+    if(strcmp(fieldName,"title") == 0)
+	{
+		if(staticItem->title != NULL) yyerror("Duplicate title tag");	
+		staticItem->title = strdup(string);
+	}
+    else if(strcmp(fieldName,"abstract") == 0)
+	{ 
+		if(staticItem->abstract != NULL) yyerror("Duplicate abstract tag");
+		staticItem->abstract = strdup(string);
+	}
+    else if(strcmp(fieldName,"author") == 0)
+	{
+		if(staticItem->author != NULL) yyerror("Duplicate author tag");		
+		staticItem->author = strdup(string);
+	}
+    else if(strcmp(fieldName,"date") == 0)
+	{	
+		if(staticItem->date != NULL) yyerror("Duplicate date tag");		
+		staticItem->date = strdup(string);
+	}
+    else if(strcmp(fieldName,"text") == 0)
+	{ 
+		if(staticItem->text != NULL) yyerror("Duplicate text tag");			
+		staticItem->text = strdup(string);
+	}
+    else if(strcmp(fieldName,"source") == 0)
+	{
+		if(staticItem->source != NULL) yyerror("Duplicate source tag");
+		staticItem->source = strdup(string);
+	}
+    else if(strcmp(fieldName,"image") == 0)
+	{
+		if(staticItem->image != NULL) yyerror("Duplicate image tag");	
+		staticItem->image = strdup(string);
+    	}
     return staticItem;                                              
+}
+
+newsItem* createNewsItem(){
+	newsItem* temp = (newsItem*) malloc(sizeof(newsItem));
+	temp->title = NULL;
+	temp->abstract = NULL;
+	temp->author = NULL;
+	temp->date = NULL;
+	temp->text = NULL;
+	temp->source = NULL;
+	temp->image = NULL;
+	return temp;
 }
 
 void convertNewsItemToHTML(newsItem* ni){
