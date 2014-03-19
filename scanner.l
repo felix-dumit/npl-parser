@@ -13,6 +13,9 @@ int bulletCount = 0;
 int HScount = 0;
 int LIopen = 0;
 
+char *string_buf;
+
+
 %}
 
 
@@ -28,6 +31,8 @@ ANY_CHAR .
 
 
 %option case-insensitive
+%option   warn nodefault
+%option   yylineno
 
 %%
 
@@ -77,87 +82,130 @@ ANY_CHAR .
 
 "\""		{
 				printf("comecou string\n"); 
-				yylval.str = "";
+				string_buf = "";
 				BEGIN(QUOTED_TEXT);
 			}
 <QUOTED_TEXT>{
+				"\""			{	
+									yylval.str = strdup(string_buf);              					
+									printf("terminou string:%s\n", yylval.str); 
+									BEGIN(INITIAL);
+									return T_QTEXT;
+								} 
 				[a-zA-Z0-9]+ 	{
 				     				printf("letras:%s\n", yytext);
-									yylval.str = (char*) concat2(2, yylval.str, yytext);
+									string_buf = (char*) concat2(2, string_buf, yytext);
+									//appendText(&string_buf, yytext);
+
 								}
-				{WHITESPACE}	{ yylval.str = (char*) concat2(2, yylval.str, yytext);}
-				":"				{printf("dois poiontos\n"); yylval.str = (char*) concat2(2, yylval.str, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+				{WHITESPACE}	{ string_buf = (char*) concat2(2, string_buf, yytext); //appendText(&string_buf, yytext);
+}
+				":"				{printf("dois poiontos\n"); string_buf = (char*) concat2(2, string_buf, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+								 //appendText(&string_buf, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 								}
-				"\\\""			{yylval.str = (char*) concat2(2, yylval.str, yytext);
+				"\\\""			{string_buf = (char*) concat2(2, string_buf, yytext);
 								}
-				"\""			{printf("terminou string:%s\n", yylval.str); BEGIN(INITIAL);} 
 				"''"			{
 									if(italicFlag){
-										yylval.str = (char*) concat2(2, yylval.str, "</i>");
+										string_buf = (char*) concat2(2, string_buf, "</i>");
+										//appendText(&string_buf, "</i>");
 										italicFlag = 0;
 									}else{
-										yylval.str = (char*) concat2(2, yylval.str, "<i>");
+										string_buf = (char*) concat2(2, string_buf, "<i>");
+										//appendText(&string_buf, "<i>");
 										italicFlag = 1;										
 									}
 								}
 				"'''"			{
 					if(boldFlag){
-						yylval.str = (char*) concat2(2, yylval.str, "</b>");
+						string_buf = (char*) concat2(2, string_buf, "</b>");
+						//appendText(&string_buf, "</b>");
 						boldFlag = 0;
 					}else{
-						yylval.str = (char*) concat2(2, yylval.str, "<b>");
+						string_buf = (char*) concat2(2, string_buf, "<b>");
+						//appendText(&string_buf, "</b>");
 						boldFlag = 1;										
 					}
 				}
 				"''''"	// de 4 nao pode
 				"'''''"			{
 					if(boldAndItalicFlag){
-						yylval.str = (char*) concat2(2, yylval.str, "</i></b>");
+						string_buf = (char*) concat2(2, string_buf, "</i></b>");
+						//appendText(&string_buf, "</i></b>");
 						boldAndItalicFlag = 0;
 					}else{
-						yylval.str = (char*) concat2(2, yylval.str, "<b><i>");
+						string_buf = (char*) concat2(2, string_buf, "<b><i>");
+						//appendText(&string_buf, "<b><i>");						
 						boldAndItalicFlag = 1;										
 					}
 				}
 				"==="	{
 							if(titleFlag){
-								yylval.str = (char*) concat2(2, yylval.str, "</h3>");
+								string_buf = (char*) concat2(2, string_buf, "</h3>");
+								//appendText(&string_buf, "</h3>");
+
 								titleFlag = 0;
 							}else{
-								yylval.str = (char*) concat2(2, yylval.str, "<h3 class=\"intextTitle\">");
+								string_buf = (char*) concat2(2, string_buf, "<h3 class=\"intextTitle\">");
+								//appendText(&string_buf, "<h3 class=\"intextTitle\">");
 								titleFlag = 1;
 							}
 				}
 
 				[#]+	{
 							int numHS = strlen(yytext);
-							if(LIopen) yylval.str = (char*) concat2(2, yylval.str, "</li>");
+
+							printf("#hashtag:%d %d\n", numHS, HScount);
+
+							if(LIopen) {
+								string_buf = (char*) concat2(2, string_buf, "</li>");
+								//appendText(&string_buf, "</li>");
+							}
 
 							if(numHS == HScount + 1){
-								yylval.str = (char*) concat2(2, yylval.str, "<ol><li>");
+								string_buf = (char*) concat2(2, string_buf, "<ol><li>");
+								//appendText(&string_buf, "<ol><li>");
 								HScount++;
 							}
 							else if(numHS < HScount){								
 
-								for(; HScount > numHS; HScount--) yylval.str = (char*) concat2(2, yylval.str, "</ol>");
+								for(; HScount > numHS; HScount--) {
+									string_buf = (char*) concat2(2, string_buf, "</ol>");
+									//appendText(&string_buf, "</ol>");
+								}
 								HScount = numHS;
-								yylval.str = (char*) concat2(2, yylval.str, "<li>");
+								string_buf = (char*) concat2(2, string_buf, "<li>");
+								//appendText(&string_buf, "<li>");
 
 							}
 							else if(numHS == HScount){	
-								yylval.str = (char*) concat2(2, yylval.str, "<li>");
+								string_buf = (char*) concat2(2, string_buf, "<li>");
+								//appendText(&string_buf, "<li>");
 							}							
 
 							LIopen = 1;
-							printf("#hashtag\n");
 					}
 				
 				"\n"/([^"*"#]{-}[\t\r\f]) {
-							if(bulletCount) {LIopen = 0;  yylval.str = (char*) concat2(2, yylval.str, "</li>");}
-							for(; bulletCount; bulletCount--) yylval.str = (char*) concat2(2, yylval.str, "</ul>"); 
+							if(bulletCount) {
+								LIopen = 0;  
+								string_buf = (char*) concat2(2, string_buf, "</li>");
+								//appendText(&string_buf, "</li>");
+							}
+							for(; bulletCount; bulletCount--) {
+								string_buf = (char*) concat2(2, string_buf, "</ul>");
+								//appendText(&string_buf, "</ul>");
+							} 
 
-							if(HScount) {LIopen = 0;  yylval.str = (char*) concat2(2, yylval.str, "</li>");}
-							for(; HScount; HScount--) yylval.str = (char*) concat2(2, yylval.str, "</ol>"); 
+							if(HScount) {
+								LIopen = 0;  
+								string_buf = (char*) concat2(2, string_buf, "</li>");
+								//appendText(&string_buf, "</li>");
+							}
+							for(; HScount; HScount--){
+								string_buf = (char*) concat2(2, string_buf, "</ol>"); 
+								//appendText(&string_buf, "</ol>");
+							} 
 
 						}
 				["*"]+	{
@@ -166,24 +214,33 @@ ANY_CHAR .
 							printf("*bullet:%d %d\n", numBullet, bulletCount);
 
 
-							if(LIopen) yylval.str = (char*) concat2(2, yylval.str, "</li>");
+							if(LIopen){
+								string_buf = (char*) concat2(2, string_buf, "</li>");
+								//appendText(&string_buf, "</li>");
+							}
 
 							if(numBullet == bulletCount + 1){
-								yylval.str = (char*) concat2(2, yylval.str, "<ul><li>");
+								string_buf = (char*) concat2(2, string_buf, "<ul><li>");
+								//appendText(&string_buf, "<ul><li>");
 								bulletCount++;
 							}
 							else if(numBullet < bulletCount){								
 
-								for(; bulletCount > numBullet; bulletCount--) yylval.str = (char*) concat2(2, yylval.str, "</ul>");
+								for(; bulletCount > numBullet; bulletCount--) {
+									string_buf = (char*) concat2(2, string_buf, "</ul>");
+									//appendText(&string_buf, "</ul>");
+								}
 								bulletCount = numBullet;
-								yylval.str = (char*) concat2(2, yylval.str, "<li>");
+								string_buf = (char*) concat2(2, string_buf, "<li>");
+								//appendText(&string_buf, "<li>");
 
 							}
 							else if(numBullet == bulletCount){	
-								yylval.str = (char*) concat2(2, yylval.str, "<li>");
+								string_buf = (char*) concat2(2, string_buf, "<li>");
+								//appendText(&string_buf, "<li>");
 							}							
 
-							printf("---\nYLVL> %s\n---\n", yylval.str);
+							//printf("---\nYLVL> %s\n---\n", yylval.str);
 
 							LIopen = 1;
 					}
@@ -203,8 +260,7 @@ ANY_CHAR .
 			return T_NAME;
 			}
 
-
-
+{WHITESPACE} /* ignore */ ;
 
 {ANY_CHAR} {
 	printf("Caracter %c (ASCII %d) inesperado.\n", yytext[0], yytext[0]);
@@ -214,7 +270,7 @@ ANY_CHAR .
 
 // Codigo C
 
-// {WHITESPACE} /* ignore */ ;
+// 
 
 /*
 {QUOTEDTEXT} {	yylval.str = (char*) stripQuotes(strdup(yytext));	
