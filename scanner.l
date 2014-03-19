@@ -23,6 +23,7 @@ NAME [a-z][_a-zA-Z0-9]*
 DIGIT  [0-9]+
 WHITESPACE [ \n\r\t\f]
 LINK_TEXT \[ (.+) | (.+) \]
+EXTRA_C [éáíóúãõàçü]
 ANY_CHAR .
 
 %x IN_COMMENT
@@ -76,7 +77,7 @@ ANY_CHAR .
  <IN_COMMENT>{
 			 \n      {printf("ent comment"); BEGIN(INITIAL);}
 			 [^\n]+    // eat comment
-			 "/"       // eat the lone /
+			 \/       // eat the lone /
  }
 
 
@@ -92,13 +93,13 @@ ANY_CHAR .
 									BEGIN(INITIAL);
 									return T_QTEXT;
 								} 
-				[a-zA-Z0-9]+ 	{
+				[[:alnum:]]+	{
 				     				printf("letras:%s\n", yytext);
 									string_buf = (char*) concat2(2, string_buf, yytext);
 									//appendText(&string_buf, yytext);
 
 								}
-				{WHITESPACE}	{ string_buf = (char*) concat2(2, string_buf, yytext); //appendText(&string_buf, yytext);
+				[[:space:]]	{ string_buf = (char*) concat2(2, string_buf, yytext); //appendText(&string_buf, yytext);
 }
 				":"				{printf("dois poiontos\n"); string_buf = (char*) concat2(2, string_buf, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 								 //appendText(&string_buf, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
@@ -157,15 +158,13 @@ ANY_CHAR .
 
 							printf("#hashtag:%d %d\n", numHS, HScount);
 
-							if(LIopen) {
-								string_buf = (char*) concat2(2, string_buf, "</li>");
-								//appendText(&string_buf, "</li>");
-							}
 
-							if(numHS == HScount + 1){
-								string_buf = (char*) concat2(2, string_buf, "<ol><li>");
+							if(numHS >HScount) {
+								for(; HScount < numHS; HScount++){
+									string_buf = (char*) concat2(2, string_buf, "<ol>");
+								}
+								string_buf = (char*) concat2(2, string_buf, "<li>");
 								//appendText(&string_buf, "<ol><li>");
-								HScount++;
 							}
 							else if(numHS < HScount){								
 
@@ -181,28 +180,45 @@ ANY_CHAR .
 							else if(numHS == HScount){	
 								string_buf = (char*) concat2(2, string_buf, "<li>");
 								//appendText(&string_buf, "<li>");
-							}							
+							}
+
 
 							LIopen = 1;
 					}
-				
-				"\n"/([^"*"#]{-}[\t\r\f]) {
-							if(bulletCount) {
-								LIopen = 0;  
+					[[:cntrl:]]+/"*"[^"#"]+\n {
+
+									for(; HScount>0; HScount--) {
+										string_buf = (char*) concat2(2, string_buf, "</ol>");
+								//appendText(&string_buf, "</ul>");
+									} 
+								  }
+				[[:cntrl:]]+/"#"[^"*"]+\n {
+
+									for(; bulletCount>0; bulletCount--) {
+										string_buf = (char*) concat2(2, string_buf, "</ul>");
+								//appendText(&string_buf, "</ul>");
+									} 
+								  }
+				[[:cntrl:]]+/["*""#"] {
+						if(LIopen){
+							string_buf = (char*) concat2(2, string_buf, "</li>");
+							LIopen = 0;
+						} 
+				}
+
+				[[:cntrl:]]+/([^"*"#]) {
+							
+							if(LIopen){
 								string_buf = (char*) concat2(2, string_buf, "</li>");
-								//appendText(&string_buf, "</li>");
-							}
-							for(; bulletCount; bulletCount--) {
+								LIopen = 0;
+							} 
+
+							for(; bulletCount>0; bulletCount--) {
 								string_buf = (char*) concat2(2, string_buf, "</ul>");
 								//appendText(&string_buf, "</ul>");
 							} 
 
-							if(HScount) {
-								LIopen = 0;  
-								string_buf = (char*) concat2(2, string_buf, "</li>");
-								//appendText(&string_buf, "</li>");
-							}
-							for(; HScount; HScount--){
+							for(; HScount>0; HScount--){
 								string_buf = (char*) concat2(2, string_buf, "</ol>"); 
 								//appendText(&string_buf, "</ol>");
 							} 
@@ -213,14 +229,13 @@ ANY_CHAR .
 
 							printf("*bullet:%d %d\n", numBullet, bulletCount);
 
+							if(numBullet > bulletCount){
+								for(; bulletCount < numBullet; bulletCount++){
+									string_buf = (char*) concat2(2, string_buf, "<ul>");
 
-							if(LIopen){
-								string_buf = (char*) concat2(2, string_buf, "</li>");
-								//appendText(&string_buf, "</li>");
-							}
+								}
 
-							if(numBullet == bulletCount + 1){
-								string_buf = (char*) concat2(2, string_buf, "<ul><li>");
+								string_buf = (char*) concat2(2, string_buf, "<li>");
 								//appendText(&string_buf, "<ul><li>");
 								bulletCount++;
 							}
