@@ -185,34 +185,41 @@ ANY_CHAR .
 
 							LIopen = 1;
 					}
-					[[:cntrl:]]+/"*"[^"#"]+\n {
-
+				
+				[[:cntrl:]]+/[^"#"]+\n {
+									if(LIopen){
+										string_buf = (char*) concat2(2, string_buf, "</li>");
+										LIopen = 0;
+									} 
 									for(; HScount>0; HScount--) {
 										string_buf = (char*) concat2(2, string_buf, "</ol>");
-								//appendText(&string_buf, "</ul>");
+								//appendText(&string_buf, "</ol>");
 									} 
 								  }
-				[[:cntrl:]]+/"#"[^"*"]+\n {
+				[[:cntrl:]]+/[^"*"]+\n {
+									if(LIopen){
+										string_buf = (char*) concat2(2, string_buf, "</li>");
+										LIopen = 0;
+									} 
 
-									for(; bulletCount>0; bulletCount--) {
-										string_buf = (char*) concat2(2, string_buf, "</ul>");
-								//appendText(&string_buf, "</ul>");
-									} 
+										for(; bulletCount>0; bulletCount--) {
+											string_buf = (char*) concat2(2, string_buf, "</ul>");
+									//appendText(&string_buf, "</ul>");
+										} 
 								  }
+				
 				[[:cntrl:]]+/["*""#"] {
 						if(LIopen){
 							string_buf = (char*) concat2(2, string_buf, "</li>");
 							LIopen = 0;
 						} 
 				}
-
 				[[:cntrl:]]+/([^"*"#]) {
 							
 							if(LIopen){
 								string_buf = (char*) concat2(2, string_buf, "</li>");
 								LIopen = 0;
 							} 
-
 							for(; bulletCount>0; bulletCount--) {
 								string_buf = (char*) concat2(2, string_buf, "</ul>");
 								//appendText(&string_buf, "</ul>");
@@ -237,7 +244,6 @@ ANY_CHAR .
 
 								string_buf = (char*) concat2(2, string_buf, "<li>");
 								//appendText(&string_buf, "<ul><li>");
-								bulletCount++;
 							}
 							else if(numBullet < bulletCount){								
 
