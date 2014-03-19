@@ -219,12 +219,12 @@ void convertNewsItemToHTML(newsItem* ni){
 }
 
 void createNewsPaperHTML(newspaper* newspaper){
-    char* html = "<html><body>";
+    char* html = "<html>\n<meta charset=\"utf-8\">\n<body>\n";
 
 
 
 
-    html = concat(2,html,"</body></html>");
+    html = concat(2,html,"</body>\n</html>\n");
 
     FILE* f = fopen("newspaper.html","w");
     fprintf(f,"%s",html);
