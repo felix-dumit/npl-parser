@@ -133,6 +133,10 @@ newsParams:
 	fieldList structureField					{
 													newsItem *it = $1;
 													it->structure = $2;
+													if(it->title == NULL) yyerror("Missing Title");
+													if(it->abstract == NULL) yyerror("Missing Abstract");
+													if(it->author == NULL) yyerror("Missing Author");
+													
 													$$ = it;	
 												}
 
@@ -199,7 +203,8 @@ listOfWords:
 
 void yyerror(const char* errmsg)
 {
-	//printf("\n***Error: %s\n", errmsg);
+	printf("\n***Error: %s\n", errmsg);
+	exit();
 }
 
 
