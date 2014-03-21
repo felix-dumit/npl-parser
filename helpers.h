@@ -12,6 +12,7 @@ char* stripQuotes(char* line);
 newsItem* createNewsItem();
 newsItem* findNewsItem(newspaper* newspaper, char* newsItemName);
 void createNewsPaperHTML(newspaper* newspaper);
+void createCSS(char* col);
 
 
 char* tolowerStr(char* str)
@@ -190,7 +191,7 @@ char* convertNewsItemToHTML(newsItem* ni){
     char** showList = str_split(strdup(ni->structure->show),';');
     int i;
 
-    char* html = concat(3, "<div class=\"col", strdup(ni->structure->col),"\">\n");
+    char* html = concat(3, "\t\t<div class=\"col", strdup(ni->structure->col),"\">\n\t\t\t<div class=\"newsItem\">\n\t\t\t\t");
 
     for(i=0; showList[i];i++){
         if(strcmp(showList[i],"title") == 0 && strlen(ni->title) > 0){
@@ -214,23 +215,25 @@ char* convertNewsItemToHTML(newsItem* ni){
         else if(strcmp(showList[i],"image") == 0 && strlen(ni->image) > 0)
             html = concat(2,html,strdup(ni->image));
     }  
-        if(ni->text)
-            html = concat(2,html,strdup(ni->text)); 
+        // if(ni->text)
+        //     html = concat(2,html,strdup(ni->text)); 
 
-    html = concat(2, html, "</div>\n");
+    html = concat(2, html, "\t\t\t</div>\n\t\t</div>\n\n\n");
 
     return html;
 }
 
 void createNewsPaperHTML(newspaper* newspaper){
 
-    char* html = concat(3,"<html>\n<meta charset=\"utf-8\">\n<head><title>", newspaper->title,"</title></head>\n");
+    char* html = concat(3,"<!DOCTYPE html>\n<html>\n<meta charset=\"utf-8\">\n<head><title>", newspaper->title,
+        "</title>\n\t<link rel=\"stylesheet\" type=\"text/css\" href=\"mystyle.css\">\n\t"
+        "<link rel=\"stylesheet\" type=\"text/css\" href=\"colwidth.css\">\n</head>\n");
 
 
-    html = concat(6, html, "<body>\n<h1 class=\"newspaperTitle\">", newspaper->title, "<span class=\"newspaperDate\">",
-        newspaper->date, "</span></h1>\n");
+    html = concat(6, html, "<body>\n\n\n\t<h1 class=\"newspaperTitle\">", newspaper->title, 
+        "\n\t\t<span class=\"newspaperDate\">",newspaper->date, "\t</span>\n\t</h1>\n");
 
-    html = concat(4, html, "<div class=\"mainContent col", newspaper->structure->col,"\">\n");
+    html = concat(4, html, "\n\t<div id=\"container\" class=\"col", newspaper->structure->col,"\">\n");
     char** showList = str_split(newspaper->structure->show,';');
 
     int i;
@@ -244,6 +247,18 @@ void createNewsPaperHTML(newspaper* newspaper){
     FILE* f = fopen("newspaper/newspaper.html","w");
     fprintf(f,"%s",html);
     fclose(f);
+
+    createCSS(newspaper->structure->col);
+}
+
+void createCSS(char* col){
+    FILE* f = fopen("newspaper/colwidth.css", "w");
+
+    int i;
+    for(i=1; i<= atoi(col); i++){
+        fprintf(f, "#container > div.col%d{width: calc(%d * 100%% / %d);}\n\n", i, i, atoi(col));
+    }
+
 }
 
 

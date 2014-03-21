@@ -4,40 +4,51 @@
 #include <stdarg.h>
 #include <string.h>
 
+char* css = ""
+"body { margin: 0; padding: 0}"
+""
+"h1 {"
+    "background: red;"
+"}"
+""
+"#container {"
+    "position: absolute;"
+ "/*   top: 30px; left: 50px;"
+    "bottom: 30px; right: 50px;"
+    "border: 1px solid #ccc */"
+"}"
+""
+"#container > div {"
+    "width: 100%;"
+    "height: 100\%;"
+    "float: left;"
+"}"
+""
+"#container > div.col1{"
+    "width: calc(1 * 100% / %s);"
+"}"
+"#container > div.col2{"
+    "width: calc(2 * 100% / %s);"
+"}"
+"#container > div.col3{"
+    "width: calc(3 * 100% / %s);"
+"}"
+""
+"#container > div.col4{"
+    "width: calc(4 * 100% / %s);"
+"}";
 
 
-char* concat2(int count, ...)
-{
-    va_list ap;
-    int len = 1, i;
 
-    va_start(ap, count);
-    for(i=0 ; i<count ; i++)
-        len += strlen(va_arg(ap, char*));
-    va_end(ap);
 
-    char *result = (char*) calloc(sizeof(char),len);
-
-    // Actually concatenate strings
-    va_start(ap, count);
-    for(i=0 ; i<count ; i++)
-    {
-        
-        char *s = va_arg(ap, char*);
-        strcat(result, s);
-
-    }
-    va_end(ap);
-
-    return result;
-}
 
 
 int main()
 {
-	char* str1 = "iae";
+	char* str1 = "iae"
+				 "bob";
 
-	printf("concat: %s", concat2(3, "oi ", str1, " bolinha"));
+	printf("%s", css);
 }
 
 

@@ -93,6 +93,7 @@ ANY_CHAR .
 									BEGIN(INITIAL);
 									return T_QTEXT;
 								}
+				"http://"		{   string_buf = (char*) concat(2, string_buf, yytext);}
 				{CHARCT} 		{
 									string_buf = (char*) concat(2, string_buf, yytext);
 								} 

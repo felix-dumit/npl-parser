@@ -163,51 +163,57 @@ newsParams:
 												}
 
 fieldList:
-	titleField fieldList						{////printf("TitleField> %s\n",$1);
-													$$ = newsItemSetGet($1,"title");}
-	| abstractField fieldList					{////printf("abstractField> %s\n",$1);
-													$$ = newsItemSetGet($1,"abstract");}	
-	| authorField fieldList						{////printf("authorField> %s\n",$1);
-													$$ = newsItemSetGet($1,"author");}
-	| optionalDateField fieldList				{////printf("optionalDateField> %s\n",$1);
-													$$ = newsItemSetGet($1,"date");}
-	| optionalImageField fieldList				{////printf("optionalImageField> %s\n",$1);
-													$$ = newsItemSetGet($1,"image");}
-	| optionalSourceField fieldList				{////printf("optionalSourceField> %s\n",$1);
-													$$ = newsItemSetGet($1,"source");}
-	| optionalTextField	fieldList				{////printf("optionalTextField> %s\n",$1);
-													$$ = newsItemSetGet($1,"text");}
-	| 											{////printf("blank\n");
-													$$ = newsItemSetGet(NULL,"");}
+	titleField fieldList						{$$ = newsItemSetGet($1,"title");}
+	| abstractField fieldList					{$$ = newsItemSetGet($1,"abstract");}	
+	| authorField fieldList						{$$ = newsItemSetGet($1,"author");}
+	| optionalDateField fieldList				{$$ = newsItemSetGet($1,"date");}
+	| optionalImageField fieldList				{$$ = newsItemSetGet($1,"image");}
+	| optionalSourceField fieldList				{$$ = newsItemSetGet($1,"source");}
+	| optionalTextField	fieldList				{$$ = newsItemSetGet($1,"text");}
+	| 											{$$ = newsItemSetGet(NULL,"");}
 
 titleField:
 	T_TITLE '=' T_QTEXT 	 	 				{//printf("Title > %s\n",$3); 
-													$$ = concat(3,"<h2 class=\"newsTitle\">",$3,"</h2>\n");}
+													$$ = concat(3,"<h2 class=\"newsTitle\">\n\t\t\t\t\t",$3,
+														"\n\t\t\t\t</h2>");
+												}
 
 abstractField:
 	T_ABSTRACT '=' T_QTEXT 	 					{//printf("Abstract > %s\n",$3); 
-													$$ = concat(3,"<div class=\"newsAbstract\">",$3,"</div>\n");}
+													$$ = concat(3,"\t\t\t\t<div class=\"newsAbstract\">\n\t\t\t\t\t",$3,
+														"\n\t\t\t\t</div>\n");
+												}
 
 authorField:
 	T_AUTHOR '=' T_QTEXT  						{//printf("Author > %s\n",$3); 
-													$$ = concat(3,"<div class=\"newsAuthor\">",$3,"</div>\n");}
+													$$ = concat(3,
+													"\t\t\t\t<div class=\"newsAuthor\">\n\t\t\t\t\t<b>Author: </b>",
+														$3,"\n\t\t\t\t</div>\n");
+												}
 
 optionalDateField:
 	T_DATE '=' T_QTEXT  						{//printf("OptDate > %s\n",$1); 
-													$$ = concat(3,"<div class=\"newsDate\">",$3,"</div>\n");}
+													$$ = concat(3,"\t\t\t\t<div class=\"newsDate\">\n\t\t\t\t\t",$3,
+														"\n\t\t\t\t</div>\n");}
 
 optionalImageField:
 	T_IMAGE '=' T_QTEXT 	 					{//printf("OptImage > %s\n",$3); 
-													$$ = concat(3,"<img class=\"newsImage\" src=\"",$3,"\"\\>\n");}
+													$$ = concat(3,"\t\t\t\t<img class=\"newsImage\" src=\"",$3,"\"\\>\n");
+												}
 
 optionalSourceField:
 	T_SOURCE '=' T_QTEXT  						{//printf("OptSource > %s\n",$3); 
-													$$ = concat(3,"<div class=\"newsSource\">",$3,"</div>\n");}
+													$$ = concat(3,
+														"\t\t\t\t<div class=\"newsSource\">\n\t\t\t\t\t<b>Source: </b>",
+														$3,"\n\t\t\t\t</div>\n");
+												}
 
 
 optionalTextField:
 	T_TEXT '=' T_QTEXT 	 						{//printf("OptText > %s\n",$3); 
-													$$ = concat(3,"<div class=\"newsText\">",$3,"</div>\n");}
+													$$ = concat(3,"\t\t\t\t<div class=\"newsText\">\n\t\t\t\t\t",$3,
+														"\n\t\t\t\t</div>\n");
+												}
 
 
 
