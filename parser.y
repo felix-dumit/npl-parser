@@ -198,7 +198,7 @@ optionalDateField:
 
 optionalImageField:
 	T_IMAGE '=' T_QTEXT 	 					{//printf("OptImage > %s\n",$3); 
-													$$ = concat(3,"\t\t\t\t<img class=\"newsImage\" src=\"",$3,"\"\\>\n");
+													$$ = concat(3,"\t\t\t\t<div class=\"figure\"><img class=\"newsImage\" src=\"",$3,"\"\\></div>\n");
 												}
 
 optionalSourceField:
