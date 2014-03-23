@@ -138,17 +138,23 @@ newsItem:
 													//printf("NAME> %s\n",$1);
 													$3->name = strdup($1);
 													
-													char* html = "<html>\n<meta charset=\"utf-8\">\n<body>\n";
-													char* newsHTML = convertNewsItemToHTML($3);
-
-													html = concat(3,html, newsHTML, "</body></html>");
-
-													FILE* f = fopen(concat(3,"newspaper/", $1,".html"),"w");
-													fprintf(f,"%s",html);
-													fclose(f);
-													
 													createNewNewsItem = 1;
+
 													$$ = $3;
+
+													if($3->text){
+														char* html = concat(3,"<!DOCTYPE html>\n<html>\n<meta charset=\"utf-8\">\n<head><title>", 
+															$3->title,"</title>\n\t<link rel=\"stylesheet\" type=\"text/css\" href=\"mystyle.css\">\n\t"
+														        "\n</head>\n");
+
+														char* newsHTML = convertNewsItemToHTML($3, 1);
+														html = concat(3,html, newsHTML, "</body></html>");
+
+														FILE* f = fopen(concat(3,"newspaper/", $1,".html"),"w");
+														fprintf(f,"%s",html);
+														fclose(f);
+													}
+
 												}
 
 newsParams:

@@ -4,13 +4,13 @@
 #include <stdlib.h>
 
 char* tolowerStr(char* str);
-char* convertNewsItemToHTML(newsItem* ni);
 char* concat(int count, ...);
 char** str_split(char* a_str, const char a_delim);
 char *trimwhitespace(char *str);
 char* stripQuotes(char* line);
 newsItem* createNewsItem();
 newsItem* findNewsItem(newspaper* newspaper, char* newsItemName);
+char* convertNewsItemToHTML(newsItem* ni, int newfile);
 void createNewsPaperHTML(newspaper* newspaper);
 void createCSS(char* col);
 
@@ -186,7 +186,7 @@ newsItem* createNewsItem(){
     return temp;
 }
 
-char* convertNewsItemToHTML(newsItem* ni){
+char* convertNewsItemToHTML(newsItem* ni, int newfile){
 
     char** showList = str_split(strdup(ni->structure->show),';');
     int i;
@@ -195,16 +195,17 @@ char* convertNewsItemToHTML(newsItem* ni){
 
     for(i=0; showList[i];i++){
         if(strcmp(showList[i],"title") == 0 && strlen(ni->title) > 0){
-            if( ni->text != NULL){
+            if( ni->text != NULL && !newfile){
                 html = concat(4, html, "<a href=\"", strdup(ni->name),".html\">");
             }
             html = concat(2,html,strdup(ni->title));
-            if( ni->text != NULL){
+            if( ni->text != NULL && !newfile){
                 html = concat(2, html, "</a>\n");
             }
         }
         else if(strcmp(showList[i],"abstract") == 0 && strlen(ni->abstract) > 0)
-            html = concat(2,html,strdup(ni->abstract)); 
+            if(newfile)      html = concat(2,html,strdup(ni->text));
+            else             html = concat(2,html,strdup(ni->abstract)); 
         else if(strcmp(showList[i],"author") == 0 && strlen(ni->author) > 0)
             html = concat(2,html,strdup(ni->author));
         else if(strcmp(showList[i],"date") == 0 && strlen(ni->date) > 0)
@@ -215,8 +216,6 @@ char* convertNewsItemToHTML(newsItem* ni){
         else if(strcmp(showList[i],"image") == 0 && strlen(ni->image) > 0)
             html = concat(2,html,strdup(ni->image));
     }  
-        // if(ni->text)
-        //     html = concat(2,html,strdup(ni->text)); 
 
     html = concat(2, html, "\t\t\t</div>\n\t\t</div>\n\n\n");
 
@@ -239,7 +238,7 @@ void createNewsPaperHTML(newspaper* newspaper){
     int i;
     for(i=0; showList[i]; i++){
         newsItem* item = findNewsItem(newspaper, showList[i]);
-        char* newsHTML = convertNewsItemToHTML(item);
+        char* newsHTML = convertNewsItemToHTML(item, 0);
         html = concat(2, html, newsHTML);
     }
 

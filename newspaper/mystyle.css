@@ -16,7 +16,7 @@ h1 {
     float: left;
 }
 
-#container .newsItem
+.newsItem
 {
     margin: 20px;
 }
@@ -77,11 +77,9 @@ span.newspaperDate{
 
 .newsItem > a{
     text-decoration: none;
-    border-bottom: 10px solid white;
-
 }
 .newsItem > a:hover{
-    border-bottom-color: green;
+    text-decoration: underline;
 
 }
 
