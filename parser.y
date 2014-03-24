@@ -11,27 +11,28 @@ int createNewNewsItem = 1;
 
 %union{
 	char *str;
-	int intval;
 	structure *structure;
 	newsItem *nItem;
 	newspaper *newspaper;
 	newsItemList *newsItemList;
 }
 
+/* Terminal Tokens */ 
 %token <str> T_DIGIT
 %token <str> T_NAME T_WORD T_TEXT_TITLE T_QTEXT
-
 %token <str> T_NEWSPAPER T_TITLE T_DATE T_ABSTRACT T_TEXT T_SOURCE T_IMAGE T_AUTHOR T_STRUCTURE T_ITEM 
 %token <str> T_COL T_SHOW
 
+/* Non Terminal Tokens */
 %type <str> titleField abstractField 
 %type <str> authorField optionalDateField optionalImageField optionalSourceField optionalTextField
 %type <str> showField showList field NPtitleField NPdateField NPshowField nameList
-
-%type <structure> structureField NPstructureField
 %type <str> colField
 
+%type <structure> structureField NPstructureField
+
 %type <nItem> fieldList newsParams newsItem
+
 %type <newspaper> newspaperStructure requiredNewspaperFields
 
 %type <newsItemList> newsDeclaration
@@ -51,12 +52,11 @@ newspaperStructure:
 	requiredNewspaperFields newsDeclaration		{ 
 													newspaper *temp = $1;
 													temp->newsList = $2;										
-
 													$$ = temp;
 												}
 
 requiredNewspaperFields:
-	NPtitleField NPdateField NPstructureField     {
+	NPtitleField NPdateField NPstructureField   {
 													newspaper *temp = (newspaper*) malloc(sizeof(newspaper));
 													temp->title = strdup($1);
 													temp->date = strdup($2);
@@ -66,12 +66,10 @@ requiredNewspaperFields:
 
 
 NPtitleField:
-	T_TITLE '=' T_QTEXT 	 	 				{//printf("Title > %s\n",$3); 
-													$$ = strdup($3);}
+	T_TITLE '=' T_QTEXT 	 	 				{	$$ = strdup($3);	}
 
 NPdateField:
-	T_DATE '=' T_QTEXT 	 						{//printf("Date > %s\n",$3); 
-													$$ = strdup($3);}
+	T_DATE '=' T_QTEXT 	 						{	$$ = strdup($3);	}
 
 NPstructureField:
 	T_STRUCTURE '{' colField NPshowField '}'	{
@@ -82,21 +80,17 @@ NPstructureField:
 												}
 
 NPshowField:
-	T_SHOW '=' nameList							{$$ = strdup($3);}
+	T_SHOW '=' nameList							{	$$ = strdup($3);	}
 
 nameList:
-	nameList ',' T_NAME							{$$ = concat(3,$1,";",$3);}
-	|T_NAME										{$$ = $1;}
+	nameList ',' T_NAME							{	$$ = concat(3,$1,";",$3);	}
+	|T_NAME										{	$$ = $1;	}
 
 colField:
-	T_COL '=' T_DIGIT  							{
-													//printf("ColField-> %s",$3);
-													$$ = strdup($3);
-												}
+	T_COL '=' T_DIGIT  							{	$$ = strdup($3);	}
 
 structureField:
 	T_STRUCTURE '{' colField showField '}'		{
-													//printf("STRUCTUREFIELD\n");
 													structure *temp = (structure*) malloc(sizeof(structure));
 													temp->col = $3;
 													temp->show = strdup($4);
@@ -104,24 +98,20 @@ structureField:
 												}
 
 showField:
-	T_SHOW '=' showList							{
-													$$ = strdup($3);
-													//printf("ShowField-> %s",$3);
-												}
+	T_SHOW '=' showList							{	$$ = strdup($3);	}
 
 showList:
-	 showList ',' field							{//printf("showList-> %s\nNAME->%s",$1,$3);
-													$$ = concat(3,$1,";",$3);}
-	| field											{$$ = strdup($1);}
+	 showList ',' field							{	$$ = concat(3,$1,";",$3);	}
+	| field										{	$$ = strdup($1);	}
 
 field:
-	T_TITLE 									{$$ = strdup($1);}
-	| T_ABSTRACT							 	{$$ = strdup($1);}			
-	| T_AUTHOR									{$$ = strdup($1);}
-	| T_DATE									{$$ = strdup($1);}
-	| T_IMAGE									{$$ = strdup($1);}
-	| T_SOURCE									{$$ = strdup($1);}
-	| T_TEXT									{$$ = strdup($1);}
+	T_TITLE 									{	$$ = strdup($1);	}
+	| T_ABSTRACT							 	{	$$ = strdup($1);	}			
+	| T_AUTHOR									{	$$ = strdup($1);	}
+	| T_DATE									{	$$ = strdup($1);	}
+	| T_IMAGE									{	$$ = strdup($1);	}
+	| T_SOURCE									{	$$ = strdup($1);	}
+	| T_TEXT									{	$$ = strdup($1);	}
 
 
 newsDeclaration:
@@ -131,11 +121,10 @@ newsDeclaration:
 													new->next = $2;
 													$$ = new;
 												}
-	| 											{ $$ = NULL;}
+	| 											{	$$ = NULL;	}
 
 newsItem:
 	T_NAME '{' newsParams '}' 			   		{ 
-													//printf("NAME> %s\n",$1);
 													$3->name = strdup($1);
 													
 													createNewNewsItem = 1;
@@ -169,46 +158,48 @@ newsParams:
 												}
 
 fieldList:
-	titleField fieldList						{$$ = newsItemSetGet($1,"title");}
-	| abstractField fieldList					{$$ = newsItemSetGet($1,"abstract");}	
-	| authorField fieldList						{$$ = newsItemSetGet($1,"author");}
-	| optionalDateField fieldList				{$$ = newsItemSetGet($1,"date");}
-	| optionalImageField fieldList				{$$ = newsItemSetGet($1,"image");}
-	| optionalSourceField fieldList				{$$ = newsItemSetGet($1,"source");}
-	| optionalTextField	fieldList				{$$ = newsItemSetGet($1,"text");}
-	| 											{$$ = newsItemSetGet(NULL,"");}
+	titleField fieldList						{	$$ = newsItemSetGet($1,"title");	}
+	| abstractField fieldList					{	$$ = newsItemSetGet($1,"abstract");	}	
+	| authorField fieldList						{	$$ = newsItemSetGet($1,"author");	}
+	| optionalDateField fieldList				{	$$ = newsItemSetGet($1,"date");		}
+	| optionalImageField fieldList				{	$$ = newsItemSetGet($1,"image");	}
+	| optionalSourceField fieldList				{	$$ = newsItemSetGet($1,"source");	}
+	| optionalTextField	fieldList				{	$$ = newsItemSetGet($1,"text");		}
+	| 											{	$$ = newsItemSetGet(NULL,"");		}
 
 titleField:
-	T_TITLE '=' T_QTEXT 	 	 				{//printf("Title > %s\n",$3); 
+	T_TITLE '=' T_QTEXT 	 	 				{	
 													$$ = concat(3,"<h2 class=\"newsTitle\">\n\t\t\t\t\t",$3,
-														"\n\t\t\t\t</h2>");
+																"\n\t\t\t\t</h2>");
 												}
 
 abstractField:
-	T_ABSTRACT '=' T_QTEXT 	 					{//printf("Abstract > %s\n",$3); 
+	T_ABSTRACT '=' T_QTEXT 	 					{	
 													$$ = concat(3,"\t\t\t\t<div class=\"newsAbstract\">\n\t\t\t\t\t",$3,
-														"\n\t\t\t\t</div>\n");
+																"\n\t\t\t\t</div>\n");
 												}
 
 authorField:
-	T_AUTHOR '=' T_QTEXT  						{//printf("Author > %s\n",$3); 
+	T_AUTHOR '=' T_QTEXT  						{	
 													$$ = concat(3,
 													"\t\t\t\t<div class=\"newsAuthor\">\n\t\t\t\t\t<b>Author: </b>",
-														$3,"\n\t\t\t\t</div>\n");
+													$3,"\n\t\t\t\t</div>\n");
 												}
 
 optionalDateField:
-	T_DATE '=' T_QTEXT  						{//printf("OptDate > %s\n",$1); 
+	T_DATE '=' T_QTEXT  						{	
 													$$ = concat(3,"\t\t\t\t<div class=\"newsDate\">\n\t\t\t\t\t",$3,
-														"\n\t\t\t\t</div>\n");}
+																"\n\t\t\t\t</div>\n");
+												}
 
 optionalImageField:
-	T_IMAGE '=' T_QTEXT 	 					{//printf("OptImage > %s\n",$3); 
-													$$ = concat(3,"\t\t\t\t<div class=\"figure\"><img class=\"newsImage\" src=\"",$3,"\"\\></div>\n");
+	T_IMAGE '=' T_QTEXT 	 					{	
+													$$ = concat(3,"\t\t\t\t<div class=\"figure\"><img class=\"newsImage\" src=\"",
+																$3,"\"\\></div>\n");
 												}
 
 optionalSourceField:
-	T_SOURCE '=' T_QTEXT  						{//printf("OptSource > %s\n",$3); 
+	T_SOURCE '=' T_QTEXT  						{
 													$$ = concat(3,
 														"\t\t\t\t<div class=\"newsSource\">\n\t\t\t\t\t<b>Source: </b>",
 														$3,"\n\t\t\t\t</div>\n");
@@ -216,7 +207,7 @@ optionalSourceField:
 
 
 optionalTextField:
-	T_TEXT '=' T_QTEXT 	 						{//printf("OptText > %s\n",$3); 
+	T_TEXT '=' T_QTEXT 	 						{
 													$$ = concat(3,"\t\t\t\t<div class=\"newsText\">\n\t\t\t\t\t",$3,
 														"\n\t\t\t\t</div>\n");
 												}
