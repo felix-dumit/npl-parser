@@ -1,6 +1,0 @@
-"
-[www.simplelink.com]
-[www.linktag.com| Tag]
-[[www.img.com| Caption]]
-[www.google.com | [[ img.com | text]]]
-"
