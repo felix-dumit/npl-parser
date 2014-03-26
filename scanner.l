@@ -303,6 +303,24 @@ ANY_CHAR .
 										}
 
 }
+
+{DIGIT}	{	
+			yylval.str = yytext;
+			return T_DIGIT;
+			}
+{NAME}	{
+			yylval.str = (char*) tolowerStr(strdup(yytext));
+			//printf("nameou:%s\n", yylval.str);	
+			return T_NAME;
+			}
+
+{WHITESPACE} {;}/* ignore */ 
+
+{ANY_CHAR} {
+	printf("Caracter %c (ASCII %d) inesperado.\n", yytext[0], yytext[0]);
+}
+
+
 %%
 
 /////////////////// C Code ///////////////////  
