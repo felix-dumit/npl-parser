@@ -33,7 +33,7 @@ h1 {
     font-weight: 600;
     font-family: 'Titillium Web', sans-serif;
     position: relative;  
-    font-size: 36px;
+    font-size: 40px;
     line-height: 40px;
     padding: 15px 15px 15px 15%;
     color: #355681;
@@ -57,13 +57,25 @@ span.newspaperDate{
     text-transform: uppercase;
     border-bottom: 1px solid rgba(53,86,129, 0.3);
 }
+
+h3{
+    font-weight: 600;
+    font-family: 'Titillium Web', sans-serif;
+    position: relative;
+    text-shadow: 0 -1px 1px rgba(0,0,0,0.4);
+    font-size: 18px;
+    color: #355681;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(53,86,129, 0.3);
+}
+
  
 .newsItem h2{
     margin: 1em 0 0.5em 0;
     font-weight: normal;
     position: relative;
     text-shadow: 0 -1px rgba(0,0,0,0.6);
-    font-size: 20px;
+    font-size: 22px;
     line-height: 40px;
     background: #355681;
     background: rgba(53,86,129, 0.8);
